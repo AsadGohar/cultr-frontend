@@ -46,6 +46,14 @@ body {
   background: var(--color-offwhite);
 }
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* Scrollbars: show only on hover/scroll */
 * {
   scrollbar-width: thin;

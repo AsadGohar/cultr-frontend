@@ -63,7 +63,7 @@ export function StatusChip({ variant = 'neutral', children }: { variant?: ChipVa
     info: 'bg-(--color-navy)/10 text-(--color-navy) border border-(--color-line-light)',
   }
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono text-[11px] uppercase tracking-widest ${styles[variant]}`}>
+    <span className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono text-[11px] uppercase tracking-widest ${styles[variant]}`}>
       {children}
     </span>
   )
@@ -261,7 +261,7 @@ export function Chip({ children, selected = false, onRemove, onClick, disabled =
   disabled?: boolean
 }) {
   const interactive = Boolean(onClick)
-  const classes = `inline-flex items-center gap-1.5 min-h-7 px-2.5 rounded-full border text-[12px] font-500 transition-colors ${selected ? 'bg-(--color-navy) text-(--color-offwhite) border-(--color-navy)' : 'bg-(--color-offwhite-raised) text-(--color-ink) border-(--color-line-light)'} ${disabled ? 'opacity-40 cursor-not-allowed' : interactive ? 'cursor-pointer hover:border-(--color-coral)' : ''}`
+  const classes = `inline-flex items-center gap-1.5 min-h-7 px-2.5 rounded-full border text-[12px] font-500 transition-colors ${selected ? 'bg-(--color-navy) text-(--color-offwhite) border-(--color-navy)' : 'bg-(--color-offwhite-raised) text-(--color-ink) border-(--color-line-light)'} ${disabled ? 'opacity-40 cursor-not-allowed' : `cursor-pointer ${interactive ? 'hover:border-(--color-coral)' : ''}`}`
   const content = <>
     <span>{children}</span>
     {onRemove && (

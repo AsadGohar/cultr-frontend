@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Reveal, StatusChip } from '../components/cultr-ui'
+import { Dropdown, Reveal, StatusChip } from '../components/cultr-ui'
 
 export type TimeAttendanceView = 'clock' | 'overtime' | 'reports'
 type SubView = TimeAttendanceView
@@ -464,6 +464,7 @@ function OvertimeView() {
 function ReportsView() {
   const [dateRange, setDateRange] = useState('last30')
   const [teamFilter, setTeamFilter] = useState('All')
+  const [metric, setMetric] = useState('hours')
   const [generated, setGenerated] = useState(false)
 
   const metrics = [
@@ -475,46 +476,37 @@ function ReportsView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Reveal>
+      <Reveal className="relative z-20">
         <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6">
           <h3 className="font-display font-600 text-[16px] text-(--color-ink) mb-6">Build a report</h3>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="flex flex-col gap-1.5">
-              <label className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">Date range</label>
-              <select
-                value={dateRange}
-                onChange={e => setDateRange(e.target.value)}
-                className="px-4 py-2.5 border rounded-[6px] text-[14px] text-(--color-ink) bg-transparent focus:outline-none focus:border-(--color-coral) appearance-none cursor-pointer"
-                style={{ border: '1px solid var(--color-line-light)' }}
-              >
-                <option value="last7">Last 7 days</option>
-                <option value="last30">Last 30 days</option>
-                <option value="last90">Last 90 days</option>
-                <option value="ytd">Year to date</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">Team</label>
-              <select
-                value={teamFilter}
-                onChange={e => setTeamFilter(e.target.value)}
-                className="px-4 py-2.5 border rounded-[6px] text-[14px] text-(--color-ink) bg-transparent focus:outline-none focus:border-(--color-coral) appearance-none cursor-pointer"
-                style={{ border: '1px solid var(--color-line-light)' }}
-              >
-                {['All', ...teams].map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">Metric</label>
-              <select
-                className="px-4 py-2.5 border rounded-[6px] text-[14px] text-(--color-ink) bg-transparent focus:outline-none focus:border-(--color-coral) appearance-none cursor-pointer"
-                style={{ border: '1px solid var(--color-line-light)' }}
-              >
-                <option>Hours & attendance</option>
-                <option>Overtime analysis</option>
-                <option>Leave utilization</option>
-              </select>
-            </div>
+            <Dropdown
+              label="Date range"
+              value={dateRange}
+              onChange={value => setDateRange(value as string)}
+              options={[
+                { value: 'last7', label: 'Last 7 days' },
+                { value: 'last30', label: 'Last 30 days' },
+                { value: 'last90', label: 'Last 90 days' },
+                { value: 'ytd', label: 'Year to date' },
+              ]}
+            />
+            <Dropdown
+              label="Team"
+              value={teamFilter}
+              onChange={value => setTeamFilter(value as string)}
+              options={['All', ...teams].map(team => ({ value: team, label: team }))}
+            />
+            <Dropdown
+              label="Metric"
+              value={metric}
+              onChange={value => setMetric(value as string)}
+              options={[
+                { value: 'hours', label: 'Hours & attendance' },
+                { value: 'overtime', label: 'Overtime analysis' },
+                { value: 'leave', label: 'Leave utilization' },
+              ]}
+            />
           </div>
           <button
             onClick={() => setGenerated(true)}
@@ -527,7 +519,7 @@ function ReportsView() {
       </Reveal>
 
       {generated && (
-        <Reveal>
+        <Reveal className="relative z-10">
           <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6">
             <div className="flex justify-between items-center mb-6">
               <div>

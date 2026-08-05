@@ -258,7 +258,7 @@ function OnboardingView() {
         {onboardingHires.map((hire, i) => (
           <button
             key={hire.name}
-            className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6 text-left hover:border-(--color-coral) transition-colors"
+            className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6 text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-(--color-coral) hover:shadow-[0_10px_24px_rgba(11,20,38,0.07)]"
             onClick={() => setSelected(i)}
           >
             <div className="flex justify-between items-start mb-4">
@@ -319,7 +319,7 @@ function OffboardingView() {
   return (
     <div className="grid md:grid-cols-2 gap-4">
       {offboardingHires.map(hire => (
-        <div key={hire.name} className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6">
+        <div key={hire.name} className="cursor-pointer bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6 transition-all duration-150 hover:-translate-y-0.5 hover:border-(--color-coral) hover:shadow-[0_10px_24px_rgba(11,20,38,0.07)]">
           <div className="flex justify-between items-start mb-4">
             <div>
               <h4 className="font-display font-600 text-[15px] text-(--color-ink)">{hire.name}</h4>

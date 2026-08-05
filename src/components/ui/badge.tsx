@@ -14,7 +14,7 @@ export function Badge({
   className?: string;
 }) {
   return (
-    <span className={`badge badge-${variant} ${className}`.trim()} aria-live="polite">
+    <span className={`badge badge-${variant} cursor-pointer ${className}`.trim()} aria-live="polite">
       {dot ? <span className="badge-dot" aria-hidden /> : null}
       {children}
     </span>

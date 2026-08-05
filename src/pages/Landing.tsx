@@ -356,10 +356,10 @@ function ModuleTag({ children }: { children: string }) {
 
 function ModuleIdentity() {
   return (
-    <Reveal>
-      <div className="grid md:grid-cols-2 gap-12 items-center p-8 md:p-12 rounded-[12px]"
+    <Reveal className="min-w-0 h-full lg:col-span-7">
+      <div className="flex h-full flex-col justify-between gap-8 p-8 md:p-10 rounded-[12px]"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
-        <div>
+        <div className="max-w-2xl">
           <span className="font-mono text-[11px] text-(--color-sage) uppercase tracking-widest">Module 01</span>
           <h3 className="font-display font-700 text-[28px] text-(--color-offwhite) mt-3 leading-[1.15] tracking-tight">
             Identity, verified once, trusted everywhere
@@ -372,7 +372,7 @@ function ModuleIdentity() {
           </div>
         </div>
         {/* Architecture diagram */}
-        <div>
+        <div className="mt-auto w-full">
           <svg viewBox="0 0 320 120" className="w-full" aria-label="Identity access flow diagram">
             {[
               { x: 10, label: 'USER' },
@@ -402,8 +402,8 @@ function ModuleIdentity() {
 
 function ModuleOnboarding() {
   return (
-    <Reveal delay={60}>
-      <div className="grid md:grid-cols-2 gap-12 items-center p-8 md:p-12 rounded-[12px]"
+    <Reveal delay={60} className="min-w-0 h-full lg:col-span-5">
+      <div className="flex h-full flex-col gap-10 p-8 md:p-10 rounded-[12px]"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
         {/* Timeline */}
         <div className="relative flex flex-col gap-0">
@@ -467,8 +467,8 @@ function ModulePermissions() {
     [false, false, false, false],
   ]
   return (
-    <Reveal delay={120}>
-      <div className="grid md:grid-cols-2 gap-12 items-center p-8 md:p-12 rounded-[12px]"
+    <Reveal delay={120} className="min-w-0 h-full lg:col-span-5">
+      <div className="flex h-full flex-col gap-10 p-8 md:p-10 rounded-[12px]"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
         <div>
           <span className="font-mono text-[11px] text-(--color-sage) uppercase tracking-widest">Module 03</span>
@@ -513,10 +513,10 @@ function ModulePermissions() {
 
 function ModuleTime() {
   return (
-    <Reveal delay={60}>
-      <div className="p-8 md:p-12 rounded-[12px]"
+    <Reveal delay={60} className="min-w-0 h-full lg:col-span-7">
+      <div className="h-full p-8 md:p-10 rounded-[12px]"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid h-full md:grid-cols-2 gap-10 items-center">
           <div>
             <span className="font-mono text-[11px] text-(--color-sage) uppercase tracking-widest">Module 04</span>
             <h3 className="font-display font-700 text-[28px] text-(--color-offwhite) mt-3 leading-[1.15] tracking-tight">
@@ -570,8 +570,8 @@ function ModuleLeave() {
     { name: 'J. Okoro', type: 'Loan request', status: 'In review', variant: 'neutral' as const },
   ]
   return (
-    <Reveal delay={80}>
-      <div className="grid md:grid-cols-2 gap-12 items-center p-8 md:p-12 rounded-[12px]"
+    <Reveal delay={80} className="min-w-0 h-full lg:col-span-7">
+      <div className="grid h-full md:grid-cols-2 gap-10 items-center p-8 md:p-10 rounded-[12px]"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
         <div>
           <span className="font-mono text-[11px] text-(--color-sage) uppercase tracking-widest">Module 05</span>
@@ -608,10 +608,10 @@ function ModuleLeave() {
 
 function ModuleNotifs() {
   return (
-    <Reveal delay={60}>
-      <div className="p-8 md:p-10 rounded-[12px]"
+    <Reveal delay={60} className="min-w-0 h-full lg:col-span-5">
+      <div className="h-full p-8 md:p-10 rounded-[12px]"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="flex h-full flex-col justify-between gap-10">
           <div>
             <span className="font-mono text-[11px] text-(--color-sage) uppercase tracking-widest">Module 06</span>
             <h3 className="font-display font-700 text-[28px] text-(--color-offwhite) mt-3 leading-[1.15] tracking-tight">
@@ -657,7 +657,7 @@ function Modules() {
             </h2>
           </div>
         </Reveal>
-        <div className="flex flex-col gap-6">
+        <div className="grid gap-6 lg:grid-cols-12">
           <ModuleIdentity />
           <ModuleOnboarding />
           <ModulePermissions />

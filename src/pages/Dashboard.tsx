@@ -113,28 +113,28 @@ const navGroups: NavGroup[] = [
 
 // ── Breadcrumb map ────────────────────────────────────────────────────────────
 
-const breadcrumbs: Record<View, string> = {
-  overview: 'Overview / Home',
-  users: 'Identity & Access / Users',
-  mfa: 'Identity & Access / MFA & Security',
-  onboarding: 'Identity & Access / Onboarding',
-  offboarding: 'Identity & Access / Offboarding',
-  chains: 'Identity & Access / Approval Chains',
-  roles: 'Permissions / Roles & Scopes',
-  clock: 'Time & Attendance / Clock & Schedule',
-  overtime: 'Time & Attendance / Overtime & Breaks',
-  reports: 'Time & Attendance / Reports',
-  'requests-all': 'Requests / All',
-  leave: 'Requests / Leave & WFH',
-  wfh: 'Requests / WFH',
-  promotion: 'Requests / Promotion',
-  loan: 'Requests / Loan',
-  shifts: 'Requests / Shift Swaps',
-  'notif-inapp': 'Notifications / In-App',
-  'notif-email': 'Notifications / Email',
-  'notif-rules': 'Notifications / Automated Rules',
-  'settings-org': 'Settings / Organization',
-  'settings-billing': 'Settings / Billing',
+const breadcrumbs: Record<View, [{ label: string; view: View }, { label: string; view: View }]> = {
+  overview: [{ label: 'Overview', view: 'overview' }, { label: 'Home', view: 'overview' }],
+  users: [{ label: 'Identity & Access', view: 'users' }, { label: 'Users', view: 'users' }],
+  mfa: [{ label: 'Identity & Access', view: 'users' }, { label: 'MFA & Security', view: 'mfa' }],
+  onboarding: [{ label: 'Identity & Access', view: 'users' }, { label: 'Onboarding', view: 'onboarding' }],
+  offboarding: [{ label: 'Identity & Access', view: 'users' }, { label: 'Offboarding', view: 'offboarding' }],
+  chains: [{ label: 'Identity & Access', view: 'users' }, { label: 'Approval Chains', view: 'chains' }],
+  roles: [{ label: 'Permissions', view: 'roles' }, { label: 'Roles & Scopes', view: 'roles' }],
+  clock: [{ label: 'Time & Attendance', view: 'clock' }, { label: 'Clock & Schedule', view: 'clock' }],
+  overtime: [{ label: 'Time & Attendance', view: 'clock' }, { label: 'Overtime & Breaks', view: 'overtime' }],
+  reports: [{ label: 'Time & Attendance', view: 'clock' }, { label: 'Reports', view: 'reports' }],
+  'requests-all': [{ label: 'Requests', view: 'requests-all' }, { label: 'All', view: 'requests-all' }],
+  leave: [{ label: 'Requests', view: 'requests-all' }, { label: 'Leave & WFH', view: 'leave' }],
+  wfh: [{ label: 'Requests', view: 'requests-all' }, { label: 'WFH', view: 'wfh' }],
+  promotion: [{ label: 'Requests', view: 'requests-all' }, { label: 'Promotion', view: 'promotion' }],
+  loan: [{ label: 'Requests', view: 'requests-all' }, { label: 'Loan', view: 'loan' }],
+  shifts: [{ label: 'Requests', view: 'requests-all' }, { label: 'Shift Swaps', view: 'shifts' }],
+  'notif-inapp': [{ label: 'Notifications', view: 'notif-inapp' }, { label: 'In-App', view: 'notif-inapp' }],
+  'notif-email': [{ label: 'Notifications', view: 'notif-inapp' }, { label: 'Email', view: 'notif-email' }],
+  'notif-rules': [{ label: 'Notifications', view: 'notif-inapp' }, { label: 'Automated Rules', view: 'notif-rules' }],
+  'settings-org': [{ label: 'Settings', view: 'settings-org' }, { label: 'Organization', view: 'settings-org' }],
+  'settings-billing': [{ label: 'Settings', view: 'settings-org' }, { label: 'Billing', view: 'settings-billing' }],
 }
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -165,9 +165,9 @@ function Sidebar({
     >
       {/* Wordmark */}
       <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-line-dark)' }}>
-        <div className="w-8 h-8 rounded-[6px] flex items-center justify-center flex-shrink-0 font-display font-800 text-[13px]"
-          style={{ background: 'var(--color-coral)', color: 'white' }}>
-          AH
+        <div className="w-8 h-8 rounded-[6px] flex items-center justify-center flex-shrink-0"
+          style={{ background: 'var(--color-coral)' }}>
+          <img src="/cultr-favicon-white.png" alt="" className="w-5 h-5 object-contain" />
         </div>
         {!collapsed && (
           <span className="font-display font-700 text-[15px] text-(--color-offwhite) truncate tracking-tight">
@@ -249,7 +249,7 @@ function Sidebar({
 
 // ── Top bar ───────────────────────────────────────────────────────────────────
 
-function TopBar({ view, unread, onNotif, onSignOut }: { view: View; unread: number; onNotif: () => void; onSignOut: () => void }) {
+function TopBar({ view, unread, onView, onNotif, onSignOut }: { view: View; unread: number; onView: (view: View) => void; onNotif: () => void; onSignOut: () => void }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
@@ -271,9 +271,21 @@ function TopBar({ view, unread, onNotif, onSignOut }: { view: View; unread: numb
   return (
     <header className="h-16 flex items-center justify-between gap-3 pl-14 pr-4 md:px-6 flex-shrink-0"
       style={{ background: 'var(--color-offwhite-raised)', borderBottom: '1px solid var(--color-line-light)' }}>
-      <span className="min-w-0 truncate font-mono text-[11px] uppercase tracking-widest text-(--color-sage-dim)">
-        {breadcrumbs[view] || 'Dashboard'}
-      </span>
+      <nav className="flex min-w-0 items-center gap-2 truncate font-mono text-[11px] uppercase tracking-widest text-(--color-sage-dim)" aria-label="Breadcrumb">
+        {breadcrumbs[view].map((item, index) => (
+          <span key={`${item.view}-${item.label}`} className="flex min-w-0 items-center gap-2">
+            {index > 0 && <span aria-hidden="true">/</span>}
+            <button
+              type="button"
+              onClick={() => onView(item.view)}
+              className="truncate transition-colors hover:text-(--color-coral) hover:underline hover:underline-offset-4"
+              aria-current={index === breadcrumbs[view].length - 1 ? 'page' : undefined}
+            >
+              {item.label}
+            </button>
+          </span>
+        ))}
+      </nav>
       <div className="flex shrink-0 items-center gap-3 md:gap-4">
         {/* Search */}
         <div className="relative hidden md:block">
@@ -432,7 +444,7 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
           </button>
-          <TopBar view={view} unread={2} onNotif={() => handleView('notif-inapp')} onSignOut={onSignOut} />
+          <TopBar view={view} unread={2} onView={handleView} onNotif={() => handleView('notif-inapp')} onSignOut={onSignOut} />
         </div>
 
         {/* Content */}
