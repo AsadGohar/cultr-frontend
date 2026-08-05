@@ -19,7 +19,7 @@ function OrgSettings() {
   const handleSave = () => toast({
     variant: 'success',
     title: 'Organization settings saved',
-    description: 'Your changes are now visible across Cultr HR.',
+    description: 'Your changes are now visible across Cultre.',
   })
 
   return (
@@ -66,7 +66,7 @@ function OrgSettings() {
       <Reveal delay={60}>
         <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6">
           <h3 className="font-display font-600 text-[16px] text-(--color-ink) mb-2">Branding</h3>
-          <p className="text-[13px] text-(--color-sage-dim) mb-5">Customize how Cultr HR looks for your team.</p>
+          <p className="text-[13px] text-(--color-sage-dim) mb-5">Customize how Cultre looks for your team.</p>
           <div className="flex items-center gap-4">
             <label className="font-mono text-[11px] uppercase tracking-widest text-(--color-sage-dim)">Accent color</label>
             <input type="color" value={form.primaryColor} onChange={set('primaryColor')}

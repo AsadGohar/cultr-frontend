@@ -32,7 +32,7 @@ interface NavGroup {
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
-const Icon = ({ d, ...rest }: { d: string; [k: string]: unknown }) => (
+const Icon = ({ d, ...rest }: { d: string;[k: string]: unknown }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...rest}>
     <path d={d} />
   </svg>
@@ -167,11 +167,11 @@ function Sidebar({
       <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-line-dark)' }}>
         <div className="w-7 h-7 rounded-[6px] flex items-center justify-center flex-shrink-0"
           style={{ background: 'var(--color-coral)' }}>
-            <img src="/cultr-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
+          <img src="/cultr-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
         </div>
         {!collapsed && (
           <span className="font-display font-700 text-[15px] text-(--color-offwhite) truncate tracking-tight">
-            Cultr HR
+            Cultre
           </span>
         )}
       </div>

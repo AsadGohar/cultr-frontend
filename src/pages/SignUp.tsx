@@ -73,7 +73,7 @@ export default function SignUp({ onSignIn, onComplete }: { onSignIn: () => void;
           className="flex items-center gap-2 font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight hover:text-(--color-coral) transition-colors w-fit"
         >
           <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
-          Cultr HR
+          Cultre
         </button>
 
         <div className="flex-1 flex flex-col justify-center max-w-sm">
@@ -122,7 +122,7 @@ export default function SignUp({ onSignIn, onComplete }: { onSignIn: () => void;
         <div className="md:hidden mb-8">
           <button onClick={onSignIn} className="flex items-center gap-2 font-display font-700 text-[18px] text-(--color-ink) tracking-tight">
             <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
-            Cultr HR
+            Cultre
           </button>
         </div>
 

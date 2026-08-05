@@ -374,12 +374,12 @@ function ModuleIdentity() {
             Identity, verified once, trusted everywhere
           </h3>
           <p className="mt-4 text-[16px] leading-[1.6]" style={{ color: 'rgba(243,239,230,0.65)' }}>
-            MFA enforcement, password policy management, and dynamic approval chains — unified identity infrastructure that travels with each person across every system they touch.
+            MFA enforcement, password policy management, and dynamic approval chains unified identity infrastructure that travels with each person across every system they touch. Integrate with your existing SSO provider in minutes, enforce org-wide or per-group MFA policies, and maintain a full tamper-proof audit trail of every access event, configuration change, and approval decision.
           </p>
         </div>
         {/* Architecture diagram */}
         <div
-          className="mt-6 flex min-h-[180px] flex-1 flex-col justify-between rounded-[10px] border border-(--color-line-dark) p-5 md:p-6"
+          className="mt-[60px] flex min-h-[180px] flex-col justify-between rounded-[10px] border border-(--color-line-dark) p-5 md:p-6"
           style={{ background: 'rgba(158,173,156,0.045)' }}
         >
           <div className="flex items-center justify-between gap-4 border-b border-(--color-line-dark) pb-4">
@@ -392,12 +392,12 @@ function ModuleIdentity() {
           <div className="flex flex-wrap gap-2 mt-6">
             {['MFA', 'SSO-Ready', 'Audit Log', 'Dynamic Approvals'].map(t => <ModuleTag key={t}>{t}</ModuleTag>)}
           </div>
-          <svg viewBox="0 34 320 52" className="mt-5 w-full" aria-label="Identity access flow diagram">
+          <svg viewBox="0 34 400 52" className="mt-5 w-full" aria-label="Identity access flow diagram">
             {[
-              { x: 10, label: 'USER' },
-              { x: 90, label: 'MFA CHECK' },
-              { x: 180, label: 'ROLE SCOPE' },
-              { x: 260, label: 'ACCESS\nGRANTED' },
+              { x: 5,   label: 'USER' },
+              { x: 115, label: 'MFA CHECK' },
+              { x: 225, label: 'ROLE SCOPE' },
+              { x: 335, label: 'ACCESS\nGRANTED' },
             ].map(({ x, label }, i) => (
               <g key={label}>
                 <rect x={x} y="44" width="60" height="32" rx="4"
@@ -408,11 +408,42 @@ function ModuleIdentity() {
                   fontFamily="JetBrains Mono" fontSize="7">{label.split('\n')[0]}</text>
                 {label.split('\n')[1] && <text x={x + 30} y={69} textAnchor="middle" fill={i === 3 ? 'var(--color-coral)' : 'var(--color-sage)'}
                   fontFamily="JetBrains Mono" fontSize="7">{label.split('\n')[1]}</text>}
-                {i < 3 && <path d={`M${x + 60} 60 L${x + 90} 60`} stroke="var(--color-sage)" strokeWidth="0.75"
+                {i < 3 && <path d={`M${x + 60} 60 L${x + 110} 60`} stroke="var(--color-sage)" strokeWidth="0.75"
                   strokeDasharray="3 2" fill="none" />}
               </g>
             ))}
           </svg>
+
+          {/* Live metrics row */}
+          <div
+            className="mt-5 pt-4 grid grid-cols-3"
+            style={{ borderTop: '1px solid var(--color-line-dark)' }}
+          >
+            {[
+              { label: 'Users enforced', value: '128 / 128', color: 'var(--color-sage)' },
+              { label: 'Active sessions', value: '47 live', color: 'var(--color-sage)' },
+              { label: 'Last audit', value: '2 min ago', color: 'var(--color-coral)' },
+            ].map(({ label, value, color }, i) => (
+              <div
+                key={label}
+                className="flex flex-col gap-1 px-3 first:pl-0"
+                style={{ borderLeft: i > 0 ? '1px solid var(--color-line-dark)' : undefined }}
+              >
+                <span
+                  className="font-mono text-[9px] uppercase tracking-widest"
+                  style={{ color: 'var(--color-sage-dim)' }}
+                >
+                  {label}
+                </span>
+                <span
+                  className="font-mono text-[13px] font-semibold"
+                  style={{ color }}
+                >
+                  {value}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </Reveal>
@@ -609,11 +640,10 @@ function ModuleLeave() {
                 <span className="font-mono text-[11px] text-(--color-offwhite)/50 mr-2">{r.name}</span>
                 <span className="text-[13px] text-(--color-offwhite)/80">{r.type}</span>
               </div>
-              <span className={`font-mono text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
-                r.variant === 'success' ? 'text-(--color-sage)' :
+              <span className={`font-mono text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full ${r.variant === 'success' ? 'text-(--color-sage)' :
                 r.variant === 'pending' ? 'text-(--color-coral)' :
-                'text-(--color-sage-dim)'
-              }`}
+                  'text-(--color-sage-dim)'
+                }`}
                 style={{ border: '1px solid', borderColor: r.variant === 'success' ? 'rgba(158,173,156,0.4)' : r.variant === 'pending' ? 'rgba(239,120,104,0.4)' : 'var(--color-line-dark)' }}>
                 {r.status}
               </span>
