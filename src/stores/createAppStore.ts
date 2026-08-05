@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { devtools, type StateCreator } from "zustand/middleware";
+import { create, type StateCreator } from "zustand";
+import { devtools } from "zustand/middleware";
 
 import { createNotificationSlice, type NotificationSlice } from "./notificationsStore";
 import { createSessionSlice, type SessionSlice } from "./sessionStore";
@@ -22,12 +22,10 @@ const isDevtoolsEnabled = () => {
   return Boolean(windowWithFlag.__DEVTOOLS__);
 };
 
-const storeCreator = isDevtoolsEnabled()
-  ? devtools(createBaseStore, {
-      name: "project-boilerplate-store",
-      enabled: true,
-    })
-  : createBaseStore;
+const storeCreator = devtools(createBaseStore, {
+  name: "project-boilerplate-store",
+  enabled: isDevtoolsEnabled(),
+});
 
 export const useAppStore = create<AppStore>()(storeCreator);
 

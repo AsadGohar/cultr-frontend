@@ -81,7 +81,6 @@ export function WheelColumn<T extends string | number>({
   loopRef.current = loop;
 
   const n = values.length;
-  const period = Math.max(1, n) * WHEEL_ITEM_H;
 
   const state = useRef({
     offset: index * WHEEL_ITEM_H,
