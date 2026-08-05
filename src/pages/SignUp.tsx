@@ -70,8 +70,9 @@ export default function SignUp({ onSignIn, onComplete }: { onSignIn: () => void;
       >
         <button
           onClick={onSignIn}
-          className="font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight hover:text-(--color-coral) transition-colors w-fit"
+          className="flex items-center gap-2 font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight hover:text-(--color-coral) transition-colors w-fit"
         >
+          <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
           Cultr HR
         </button>
 
@@ -119,7 +120,8 @@ export default function SignUp({ onSignIn, onComplete }: { onSignIn: () => void;
       <div className="flex-1 flex flex-col justify-center px-8 md:px-16 py-16 overflow-y-auto">
         {/* Mobile wordmark */}
         <div className="md:hidden mb-8">
-          <button onClick={onSignIn} className="font-display font-700 text-[18px] text-(--color-ink) tracking-tight">
+          <button onClick={onSignIn} className="flex items-center gap-2 font-display font-700 text-[18px] text-(--color-ink) tracking-tight">
+            <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
             Cultr HR
           </button>
         </div>

@@ -21,8 +21,9 @@ export default function SignIn({ onSignIn, onSignUp }: { onSignIn: () => void; o
       <div className="absolute top-6 left-8">
         <button
           onClick={onSignUp}
-          className="font-display font-700 text-[16px] text-(--color-ink) tracking-tight hover:text-(--color-coral) transition-colors"
+          className="flex items-center gap-2 font-display font-700 text-[16px] text-(--color-ink) tracking-tight hover:text-(--color-coral) transition-colors"
         >
+          <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
           Cultr HR
         </button>
       </div>

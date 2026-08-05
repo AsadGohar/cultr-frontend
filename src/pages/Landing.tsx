@@ -376,9 +376,6 @@ function ModuleIdentity() {
           <p className="mt-4 text-[16px] leading-[1.6]" style={{ color: 'rgba(243,239,230,0.65)' }}>
             MFA enforcement, password policy management, and dynamic approval chains — unified identity infrastructure that travels with each person across every system they touch.
           </p>
-          <div className="flex flex-wrap gap-2 mt-6">
-            {['MFA', 'SSO-Ready', 'Audit Log', 'Dynamic Approvals'].map(t => <ModuleTag key={t}>{t}</ModuleTag>)}
-          </div>
         </div>
         {/* Architecture diagram */}
         <div
@@ -391,6 +388,9 @@ function ModuleIdentity() {
               <span className="h-1.5 w-1.5 rounded-full bg-(--color-sage)" aria-hidden="true" />
               Enforced
             </span>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-6">
+            {['MFA', 'SSO-Ready', 'Audit Log', 'Dynamic Approvals'].map(t => <ModuleTag key={t}>{t}</ModuleTag>)}
           </div>
           <svg viewBox="0 34 320 52" className="mt-5 w-full" aria-label="Identity access flow diagram">
             {[

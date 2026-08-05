@@ -165,9 +165,9 @@ function Sidebar({
     >
       {/* Wordmark */}
       <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-line-dark)' }}>
-        <div className="w-8 h-8 rounded-[6px] flex items-center justify-center flex-shrink-0"
+        <div className="w-7 h-7 rounded-[6px] flex items-center justify-center flex-shrink-0"
           style={{ background: 'var(--color-coral)' }}>
-          <img src="/cultr-favicon-white.png" alt="" className="w-5 h-5 object-contain" />
+            <img src="/cultr-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
         </div>
         {!collapsed && (
           <span className="font-display font-700 text-[15px] text-(--color-offwhite) truncate tracking-tight">
