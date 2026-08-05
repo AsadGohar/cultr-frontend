@@ -90,8 +90,8 @@ function ConsolePanel() {
           <rect x="10" y="28" width="72" height="24" rx="4" fill="none" stroke="var(--color-sage)" strokeWidth="1" />
           <text x="46" y="44" textAnchor="middle" fill="var(--color-sage)" fontFamily="JetBrains Mono" fontSize="9">ONBOARDING</text>
 
-          <rect x="124" y="28" width="72" height="24" rx="4" fill="none" stroke="var(--color-sage)" strokeWidth="1" />
-          <text x="160" y="44" textAnchor="middle" fill="var(--color-sage)" fontFamily="JetBrains Mono" fontSize="9">APPROVAL</text>
+          <rect x="124" y="28" width="72" height="24" rx="4" fill="none" stroke="var(--color-accent)" strokeWidth="1" />
+          <text x="160" y="44" textAnchor="middle" fill="var(--color-accent)" fontFamily="JetBrains Mono" fontSize="9">APPROVAL</text>
 
           <rect x="238" y="28" width="72" height="24" rx="4"
             fill="rgba(239,120,104,0.12)"
@@ -101,7 +101,7 @@ function ConsolePanel() {
           {/* Connecting lines */}
           <path
             d="M82 40 L124 40"
-            stroke="var(--color-sage)"
+            stroke="var(--color-accent)"
             strokeWidth="1"
             strokeDasharray="200"
             style={{
