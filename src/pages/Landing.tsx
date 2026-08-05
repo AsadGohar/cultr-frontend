@@ -101,7 +101,7 @@ function ConsolePanel() {
           {/* Connecting lines */}
           <path
             d="M82 40 L124 40"
-            stroke="var(--color-accent)"
+            stroke="var(--color-sage)"
             strokeWidth="1"
             strokeDasharray="200"
             style={{

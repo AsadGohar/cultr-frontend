@@ -35,7 +35,7 @@
 
   /* Text */
   --color-ink: #1C1917;
-  --color-accent: #99dba0;
+  --color-accent: #e4e986;
 }
 
 :root {
@@ -52,7 +52,7 @@
   --color-blue: #7FA3D1;
   --color-tan: #DAC9A2;
   --color-ink: #1C1917;
-  --color-accent: #99dba0;
+  --color-accent: #e4e986;
   /* All structural lines use warm tan instead of cool gray — unifies the palette */
   --color-line-light: rgba(218, 201, 162, 0.38);
   --color-line-dark: rgba(218, 201, 162, 0.6);
