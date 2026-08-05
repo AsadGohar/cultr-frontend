@@ -126,7 +126,7 @@ export default function LeaveRequests({ activeTab, onTabChange }: { activeTab?: 
   const selectedRequest = requestOpen === null ? null : allRequests.find(request => request.id === requestOpen)
 
   return (
-    <div className="flex flex-col gap-6 relative">
+    <div className="relative flex flex-col gap-4.5">
       {/* Tab strip */}
       <div className="flex gap-1 overflow-x-auto pb-1" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
         {tabs.map(({ id, label }) => (
@@ -139,24 +139,10 @@ export default function LeaveRequests({ activeTab, onTabChange }: { activeTab?: 
         ))}
       </div>
 
-      {/* New request FAB */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => setNewOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-[6px] font-display font-600 text-[14px] transition-colors"
-          style={{ background: 'var(--color-coral)', color: 'white' }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path d="M7 1v12M1 7h12" />
-          </svg>
-          New request
-        </button>
-      </div>
-
       {/* Request cards */}
       <Reveal>
         <div>
-          <div className="mb-4 flex items-end justify-between gap-4">
+          <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h2 className="font-display text-[17px] font-700 text-(--color-ink)">
                 {tab === 'all' ? 'All requests' : `${requestTypeMeta[tab].label} requests`}
@@ -165,6 +151,17 @@ export default function LeaveRequests({ activeTab, onTabChange }: { activeTab?: 
                 {filtered.length} {filtered.length === 1 ? 'request' : 'requests'} · {filtered.filter(request => statuses[request.id] === 'pending').length} need review
               </p>
             </div>
+            <button
+              type="button"
+              onClick={() => setNewOpen(true)}
+              className="flex shrink-0 items-center gap-2 rounded-[6px] px-5 py-2.5 font-display text-[14px] font-600 transition-colors"
+              style={{ background: 'var(--color-coral)', color: 'white' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M7 1v12M1 7h12" />
+              </svg>
+              New request
+            </button>
           </div>
           <div className="grid gap-4 lg:grid-cols-3">
             {filtered.map(request => (

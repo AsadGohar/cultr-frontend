@@ -5,6 +5,13 @@ import { Button, Reveal } from '../components/cultr-ui'
 
 function Nav({ onSignIn, onSignUp }: { onSignIn: () => void; onSignUp: () => void }) {
   const [scrolled, setScrolled] = useState(false)
+  const navItems = [
+    { label: 'Product', href: '#product' },
+    { label: 'Modules', href: '#modules' },
+    { label: 'Security', href: '#security' },
+    { label: 'Pricing', href: '#pricing' },
+    { label: 'Company', href: '#company' },
+  ]
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60)
@@ -21,22 +28,23 @@ function Nav({ onSignIn, onSignUp }: { onSignIn: () => void; onSignUp: () => voi
         borderBottom: scrolled ? '1px solid var(--color-line-dark)' : '1px solid transparent',
       }}
     >
-      <div className="flex items-center gap-2">
-        <span className="font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight">Cultr HR</span>
+      <a href="#product" className="flex items-center gap-2" aria-label="Cultr HR home">
+        <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
+        <span className="font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight">Cultr</span>
         <span
           className="w-1.5 h-1.5 rounded-full bg-(--color-coral) animate-pulse-status"
           title="System status: operational"
           aria-label="System status: operational"
         />
-      </div>
+      </a>
       <div className="hidden md:flex items-center gap-8">
-        {['Product', 'Modules', 'Security', 'Pricing', 'Company'].map((item) => (
+        {navItems.map(({ label, href }) => (
           <a
-            key={item}
-            href="#"
+            key={label}
+            href={href}
             className="font-body text-[14px] text-(--color-offwhite)/60 hover:text-(--color-offwhite) transition-colors duration-150"
           >
-            {item}
+            {label}
           </a>
         ))}
       </div>
@@ -167,7 +175,8 @@ function Hero({ onSignUp }: { onSignUp: () => void }) {
 
   return (
     <section
-      className="min-h-screen relative flex items-center pt-16"
+      id="product"
+      className="min-h-screen relative flex scroll-mt-16 items-center pt-16"
       style={{ background: 'var(--color-navy)' }}
     >
       {/* Grid lines background */}
@@ -357,7 +366,7 @@ function ModuleTag({ children }: { children: string }) {
 function ModuleIdentity() {
   return (
     <Reveal className="min-w-0 h-full lg:col-span-7">
-      <div className="flex h-full flex-col justify-between gap-8 p-8 md:p-10 rounded-[12px]"
+      <div className="flex h-full flex-col p-8 md:p-10 rounded-[12px]"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
         <div className="max-w-2xl">
           <span className="font-mono text-[11px] text-(--color-sage) uppercase tracking-widest">Module 01</span>
@@ -372,8 +381,18 @@ function ModuleIdentity() {
           </div>
         </div>
         {/* Architecture diagram */}
-        <div className="mt-auto w-full">
-          <svg viewBox="0 0 320 120" className="w-full" aria-label="Identity access flow diagram">
+        <div
+          className="mt-6 flex min-h-[180px] flex-1 flex-col justify-between rounded-[10px] border border-(--color-line-dark) p-5 md:p-6"
+          style={{ background: 'rgba(158,173,156,0.045)' }}
+        >
+          <div className="flex items-center justify-between gap-4 border-b border-(--color-line-dark) pb-4">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">Verified access path</span>
+            <span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-widest text-(--color-sage)">
+              <span className="h-1.5 w-1.5 rounded-full bg-(--color-sage)" aria-hidden="true" />
+              Enforced
+            </span>
+          </div>
+          <svg viewBox="0 34 320 52" className="mt-5 w-full" aria-label="Identity access flow diagram">
             {[
               { x: 10, label: 'USER' },
               { x: 90, label: 'MFA CHECK' },
@@ -647,7 +666,7 @@ function ModuleNotifs() {
 
 function Modules() {
   return (
-    <section style={{ background: 'var(--color-navy)', padding: '96px 0' }}>
+    <section id="modules" className="scroll-mt-16" style={{ background: 'var(--color-navy)', padding: '96px 0' }}>
       <div className="max-w-[1280px] mx-auto px-8 md:px-12">
         <Reveal>
           <div className="mb-16">
@@ -725,7 +744,7 @@ function Security() {
     { label: 'Session Controls', desc: 'Configurable session TTL, forced re-auth for sensitive actions, and device management.' },
   ]
   return (
-    <section style={{ background: 'var(--color-navy)', padding: '96px 0' }}>
+    <section id="security" className="scroll-mt-16" style={{ background: 'var(--color-navy)', padding: '96px 0' }}>
       <div className="max-w-[1280px] mx-auto px-8 md:px-12">
         <Reveal>
           <div className="mb-16">
@@ -758,7 +777,7 @@ function Security() {
 
 function Closing({ onSignUp }: { onSignUp: () => void }) {
   return (
-    <section className="py-32 text-center" style={{ background: 'var(--color-navy)' }}>
+    <section id="pricing" className="scroll-mt-16 py-32 text-center" style={{ background: 'var(--color-navy)' }}>
       <div className="max-w-[1280px] mx-auto px-8 md:px-12">
         <Reveal>
           <h2 className="font-display font-800 text-[56px] md:text-[72px] leading-[1.0] tracking-[-0.04em] text-(--color-offwhite) max-w-3xl mx-auto">
@@ -806,7 +825,7 @@ function Footer() {
     { title: 'Legal', links: ['Privacy', 'Terms', 'DPA', 'Cookies'] },
   ]
   return (
-    <footer style={{ background: 'var(--color-navy)', borderTop: '1px solid var(--color-line-dark)' }}>
+    <footer id="company" className="scroll-mt-16" style={{ background: 'var(--color-navy)', borderTop: '1px solid var(--color-line-dark)' }}>
       <div className="max-w-[1280px] mx-auto px-8 md:px-12 py-16">
         <div className="grid md:grid-cols-4 gap-12">
           <div>
