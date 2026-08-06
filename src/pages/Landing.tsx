@@ -735,7 +735,7 @@ function HowItWorks() {
         </Reveal>
         <div className="mt-16 grid md:grid-cols-3 gap-0 relative">
           {/* Connecting line */}
-          <div className="hidden md:block absolute top-5 left-[16.67%] right-[16.67%] h-[1px]"
+          <div className="hidden md:block absolute top-5 left-[0%] right-[16.67%] h-[1.5px]"
             style={{ background: 'var(--color-line-light)' }} />
           {steps.map(({ n, title, body }, i) => (
             <Reveal key={n} delay={i * 100}>
