@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StatusChip, Toggle, Reveal } from '../components/cultr-ui'
+import { StatusChip, Toggle, Reveal } from '../components/cultre-ui'
 
 export type NotificationTab = 'inapp' | 'email' | 'rules'
 type Tab = NotificationTab

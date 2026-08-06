@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Button, Reveal } from '../components/cultr-ui'
+import { Button, Reveal } from '../components/cultre-ui'
 
 // ── Nav ───────────────────────────────────────────────────────────────────────
 
@@ -28,9 +28,9 @@ function Nav({ onSignIn, onSignUp }: { onSignIn: () => void; onSignUp: () => voi
         borderBottom: scrolled ? '1px solid var(--color-line-dark)' : '1px solid transparent',
       }}
     >
-      <a href="#product" className="flex items-center gap-2" aria-label="Cultr HR home">
-        <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
-        <span className="font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight">Cultr</span>
+      <a href="#product" className="flex items-center gap-2" aria-label="Cultre HR home">
+        <img src="/cultre-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
+        <span className="font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight">Cultre</span>
         <span
           className="w-1.5 h-1.5 rounded-full bg-(--color-coral) animate-pulse-status"
           title="System status: operational"
@@ -80,7 +80,7 @@ function ConsolePanel() {
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-coral)/60" />
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-sage)/40" />
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-sage-dim)/30" />
-        <span className="ml-3 font-mono text-[10px] text-(--color-sage-dim) uppercase tracking-widest">Cultr HR · Live</span>
+        <span className="ml-3 font-mono text-[10px] text-(--color-sage-dim) uppercase tracking-widest">Cultre HR · Live</span>
       </div>
 
       {/* Org chart */}
@@ -216,7 +216,7 @@ function Hero({ onSignUp }: { onSignUp: () => void }) {
             className="mt-6 text-[17px] leading-[1.6] animate-fade-in"
             style={{ color: 'rgba(243,239,230,0.7)', animationDelay: '160ms' }}
           >
-            Cultr HR replaces scattered spreadsheets, email chains, and disconnected tools with one precise system for identity, time, and approvals — built for teams that take operations seriously.
+            Cultre HR replaces scattered spreadsheets, email chains, and disconnected tools with one precise system for identity, time, and approvals — built for teams that take operations seriously.
           </p>
 
           <div
@@ -859,7 +859,7 @@ function Footer() {
       <div className="max-w-[1280px] mx-auto px-8 md:px-12 py-16">
         <div className="grid md:grid-cols-4 gap-12">
           <div>
-            <span className="font-display font-700 text-[18px] text-(--color-offwhite)">Cultr HR</span>
+            <span className="font-display font-700 text-[18px] text-(--color-offwhite)">Cultre HR</span>
             <p className="mt-3 text-[14px] leading-[1.6]" style={{ color: 'rgba(243,239,230,0.45)' }}>
               People operations infrastructure for serious teams.
             </p>
@@ -885,7 +885,7 @@ function Footer() {
         <div className="mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
           style={{ borderTop: '1px solid var(--color-line-dark)' }}>
           <span className="font-mono text-[11px] text-(--color-sage-dim)">
-            © 2026 Cultr HR, Inc.
+            © 2026 Cultre HR, Inc.
           </span>
           <span className="font-mono text-[11px] flex items-center gap-2" style={{ color: 'rgba(158,173,156,0.6)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-(--color-sage) animate-pulse-status" />

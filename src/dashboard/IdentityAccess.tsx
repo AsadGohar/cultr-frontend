@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StatusChip, StatusDot, SlideOver, Toggle, Reveal } from '../components/cultr-ui'
+import { StatusChip, StatusDot, SlideOver, Toggle, Reveal } from '../components/cultre-ui'
 
 export type IdentityAccessView = 'users' | 'mfa' | 'onboarding' | 'offboarding' | 'chains'
 

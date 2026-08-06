@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Input } from '../components/cultr-ui'
+import { Button, Input } from '../components/cultre-ui'
 
 export default function SignIn({ onSignIn, onSignUp }: { onSignIn: () => void; onSignUp: () => void }) {
   const [email, setEmail] = useState('')
@@ -23,7 +23,7 @@ export default function SignIn({ onSignIn, onSignUp }: { onSignIn: () => void; o
           onClick={onSignUp}
           className="flex items-center gap-2 font-display font-700 text-[16px] text-(--color-ink) tracking-tight hover:text-(--color-coral) transition-colors"
         >
-          <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
+          <img src="/cultre-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
           Cultre
         </button>
       </div>

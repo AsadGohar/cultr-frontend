@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Divider } from '../components/cultr-ui'
+import { Button, Divider } from '../components/cultre-ui'
 
 function PasswordStrength({ password }: { password: string }) {
   const score = Math.min(
@@ -72,7 +72,7 @@ export default function SignUp({ onSignIn, onComplete }: { onSignIn: () => void;
           onClick={onSignIn}
           className="flex items-center gap-2 font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight hover:text-(--color-coral) transition-colors w-fit"
         >
-          <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
+          <img src="/cultre-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
           Cultre
         </button>
 
@@ -121,7 +121,7 @@ export default function SignUp({ onSignIn, onComplete }: { onSignIn: () => void;
         {/* Mobile wordmark */}
         <div className="md:hidden mb-8">
           <button onClick={onSignIn} className="flex items-center gap-2 font-display font-700 text-[18px] text-(--color-ink) tracking-tight">
-            <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
+            <img src="/cultre-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
             Cultre
           </button>
         </div>

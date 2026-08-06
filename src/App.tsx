@@ -3,7 +3,7 @@ import Landing from './pages/Landing'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import Dashboard from './pages/Dashboard'
-import { ToastProvider } from './components/cultr-ui'
+import { ToastProvider } from './components/cultre-ui'
 
 type Page = 'landing' | 'signin' | 'signup' | 'dashboard'
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Dropdown, Reveal, StatusChip } from '../components/cultr-ui'
+import { Dropdown, Reveal, StatusChip } from '../components/cultre-ui'
 
 export type TimeAttendanceView = 'clock' | 'overtime' | 'reports'
 type SubView = TimeAttendanceView

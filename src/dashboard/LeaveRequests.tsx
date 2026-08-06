@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Dropdown, Input, SlideOver, Reveal, Textarea, useToast } from '../components/cultr-ui'
+import { Button, Dropdown, Input, SlideOver, Reveal, Textarea, useToast } from '../components/cultre-ui'
 
 export type RequestTab = 'all' | 'leave' | 'wfh' | 'promotion' | 'loan' | 'shift'
 type TabType = RequestTab

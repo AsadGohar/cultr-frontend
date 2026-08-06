@@ -6,7 +6,7 @@ import TimeAttendance, { type TimeAttendanceView } from '../dashboard/TimeAttend
 import LeaveRequests, { type RequestTab } from '../dashboard/LeaveRequests'
 import Notifications, { type NotificationTab } from '../dashboard/Notifications'
 import Settings, { type SettingSection } from '../dashboard/Settings'
-import { Tooltip } from '../components/cultr-ui'
+import { Tooltip } from '../components/cultre-ui'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -167,7 +167,7 @@ function Sidebar({
       <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-line-dark)' }}>
         <div className="w-7 h-7 rounded-[6px] flex items-center justify-center flex-shrink-0"
           style={{ background: 'var(--color-coral)' }}>
-          <img src="/cultr-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
+          <img src="/cultre-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
         </div>
         {!collapsed && (
           <span className="font-display font-700 text-[15px] text-(--color-offwhite) truncate tracking-tight">

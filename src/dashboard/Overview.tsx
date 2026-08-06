@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MetricCard, StatusChip, Reveal } from '../components/cultr-ui'
+import { MetricCard, StatusChip, Reveal } from '../components/cultre-ui'
 import italyFlag from 'flag-icons/flags/1x1/it.svg'
 import singaporeFlag from 'flag-icons/flags/1x1/sg.svg'
 import nigeriaFlag from 'flag-icons/flags/1x1/ng.svg'

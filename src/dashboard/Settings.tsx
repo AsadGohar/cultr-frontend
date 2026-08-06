@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Banner, Button, Dropdown, Input, Reveal, Toggle, useToast } from '../components/cultr-ui'
+import { Banner, Button, Dropdown, Input, Reveal, Toggle, useToast } from '../components/cultre-ui'
 
 export type SettingSection = 'org' | 'billing'
 
