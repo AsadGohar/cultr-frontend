@@ -171,7 +171,7 @@ const tabs: { id: Tab; label: string }[] = [
   { id: 'rules', label: 'Automated Rules' },
 ]
 
-export default function Notifications({ activeTab, onTabChange }: { activeTab?: NotificationTab; onTabChange?: (tab: NotificationTab) => void }) {
+export default function Notifications({ activeTab, availableTabs = tabs.map(tab => tab.id), onTabChange }: { activeTab?: NotificationTab; availableTabs?: NotificationTab[]; onTabChange?: (tab: NotificationTab) => void }) {
   const [internalActive, setInternalActive] = useState<NotificationTab>('inapp')
   const active = activeTab ?? internalActive
 
@@ -183,7 +183,7 @@ export default function Notifications({ activeTab, onTabChange }: { activeTab?: 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex gap-1 overflow-x-auto pb-1" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
-        {tabs.map(({ id, label }) => (
+        {tabs.filter(({ id }) => availableTabs.includes(id)).map(({ id, label }) => (
           <button key={id} onClick={() => selectTab(id)}
             className="px-4 py-2.5 font-display font-500 text-[14px] whitespace-nowrap transition-colors relative shrink-0 cursor-pointer rounded-t-[5px] hover:bg-(--color-navy)/5"
             style={{ color: active === id ? 'var(--color-ink)' : 'var(--color-sage-dim)' }}>

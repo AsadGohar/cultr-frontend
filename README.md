@@ -43,6 +43,12 @@ This repository is prepared for AI coding agents via:
 
 Detailed rules are in `docs/STATE_MANAGEMENT.md`.
 
+## Feature flags
+
+The app includes typed feature flags with local defaults, an optional remote
+client, development overrides, React hooks, and declarative gates. See
+`docs/FEATURE_FLAGS.md` for the API contract and rollout workflow.
+
 ## Static assets setup
 
 - `public/icons` includes placeholder site/favicon assets used by `index.html`.

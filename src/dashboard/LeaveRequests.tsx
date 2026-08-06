@@ -93,7 +93,7 @@ const tabs: { id: TabType; label: string }[] = [
   { id: 'shift', label: 'Shift Swaps' },
 ]
 
-export default function LeaveRequests({ activeTab, onTabChange }: { activeTab?: RequestTab; onTabChange?: (tab: RequestTab) => void }) {
+export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab => tab.id), onTabChange }: { activeTab?: RequestTab; availableTabs?: RequestTab[]; onTabChange?: (tab: RequestTab) => void }) {
   const { toast } = useToast()
   const [internalTab, setInternalTab] = useState<RequestTab>('all')
   const tab = activeTab ?? internalTab
@@ -129,7 +129,7 @@ export default function LeaveRequests({ activeTab, onTabChange }: { activeTab?: 
     <div className="relative flex flex-col gap-4.5">
       {/* Tab strip */}
       <div className="flex gap-1 overflow-x-auto pb-1" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
-        {tabs.map(({ id, label }) => (
+        {tabs.filter(({ id }) => availableTabs.includes(id)).map(({ id, label }) => (
           <button key={id} onClick={() => selectTab(id)}
             className="px-4 py-2.5 font-display font-500 text-[14px] whitespace-nowrap transition-colors relative shrink-0 cursor-pointer rounded-t-[5px] hover:bg-(--color-navy)/5"
             style={{ color: tab === id ? 'var(--color-ink)' : 'var(--color-sage-dim)' }}>

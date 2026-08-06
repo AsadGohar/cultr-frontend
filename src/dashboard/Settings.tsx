@@ -177,7 +177,7 @@ const sections: { id: SettingSection; label: string }[] = [
   { id: 'billing', label: 'Billing' },
 ]
 
-export default function Settings({ activeSection, onSectionChange }: { activeSection?: SettingSection; onSectionChange?: (section: SettingSection) => void }) {
+export default function Settings({ activeSection, availableSections = sections.map(section => section.id), onSectionChange }: { activeSection?: SettingSection; availableSections?: SettingSection[]; onSectionChange?: (section: SettingSection) => void }) {
   const [internalActive, setInternalActive] = useState<SettingSection>('org')
   const active = activeSection ?? internalActive
 
@@ -194,7 +194,7 @@ export default function Settings({ activeSection, onSectionChange }: { activeSec
         style={{ borderBottom: '1px solid var(--color-line-light)' }}
         aria-label="Settings sections"
       >
-        {sections.map(({ id, label }) => (
+        {sections.filter(({ id }) => availableSections.includes(id)).map(({ id, label }) => (
           <button
             key={id}
             onClick={() => selectSection(id)}
