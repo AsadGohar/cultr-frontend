@@ -168,7 +168,10 @@ function Sidebar({
       }}
     >
       {/* Wordmark */}
-      <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-line-dark)' }}>
+      <div
+        className={`flex h-16 flex-shrink-0 items-center ${collapsed ? 'justify-center px-0' : 'gap-3 px-4'}`}
+        style={{ borderBottom: '1px solid var(--color-line-dark)' }}
+      >
         <div className="w-7 h-7 rounded-[6px] flex items-center justify-center flex-shrink-0"
           style={{ background: 'var(--color-coral)' }}>
           <img src="/cultre-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
@@ -226,7 +229,7 @@ function Sidebar({
                   key={v}
                   onClick={() => onView(v)}
                   title={collapsed ? label : undefined}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 transition-colors relative text-left cursor-pointer"
+                  className={`relative flex w-full items-center py-2.5 text-left transition-colors cursor-pointer ${collapsed ? 'justify-center px-0' : 'gap-3 px-4'}`}
                   style={{
                     color: active ? 'var(--color-coral)' : 'var(--color-sage-dim)',
                     background: active ? 'rgba(239,120,104,0.08)' : 'transparent',
@@ -241,7 +244,7 @@ function Sidebar({
                       style={{ background: 'var(--color-coral)' }}
                     />
                   )}
-                  <span className="flex-shrink-0">{icon}</span>
+                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center [&>svg]:block">{icon}</span>
                   {!collapsed && (
                     <span className="text-[13px] font-display font-500 truncate">{label}</span>
                   )}
