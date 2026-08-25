@@ -12,11 +12,13 @@ const initialMatrix: State[][] = [
   ['restricted', 'restricted', 'restricted', 'restricted', 'restricted', 'restricted'],
 ]
 
-function CellDot({ state, onClick }: { state: State; onClick: () => void }) {
+function CellDot({ state, editable, onClick }: { state: State; editable: boolean; onClick: () => void }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="w-4 h-4 rounded-full transition-all duration-150 hover:scale-110 focus-visible:outline-2"
+      disabled={!editable}
+      className={`w-4 h-4 rounded-full transition-all duration-150 focus-visible:outline-2 ${editable ? 'cursor-pointer hover:scale-110' : 'cursor-default'}`}
       style={{
         background: state === 'granted'
           ? 'var(--color-sage)'
@@ -25,7 +27,7 @@ function CellDot({ state, onClick }: { state: State; onClick: () => void }) {
           : 'rgba(158,173,156,0.15)',
         border: state === 'custom' ? '1px solid var(--color-coral)' : 'none',
       }}
-      aria-label={`${state} — click to cycle`}
+      aria-label={editable ? `${state} — click to cycle` : state}
       title={state.charAt(0).toUpperCase() + state.slice(1)}
     />
   )
@@ -33,10 +35,15 @@ function CellDot({ state, onClick }: { state: State; onClick: () => void }) {
 
 export default function Permissions() {
   const [matrix, setMatrix] = useState<State[][]>(initialMatrix)
+  const [draftMatrix, setDraftMatrix] = useState<State[][]>(initialMatrix)
+  const [isEditing, setIsEditing] = useState(false)
   const [selectedRole, setSelectedRole] = useState<number | null>(null)
+  const visibleMatrix = isEditing ? draftMatrix : matrix
 
   const cycleState = (ri: number, ci: number) => {
-    setMatrix(m => {
+    if (!isEditing) return
+
+    setDraftMatrix(m => {
       const next = m.map(row => [...row])
       const cur = next[ri][ci]
       next[ri][ci] = cur === 'restricted' ? 'granted' : cur === 'granted' ? 'custom' : 'restricted'
@@ -44,13 +51,60 @@ export default function Permissions() {
     })
   }
 
+  const startEditing = () => {
+    setDraftMatrix(matrix.map(row => [...row]))
+    setIsEditing(true)
+  }
+
+  const cancelEditing = () => {
+    setDraftMatrix(matrix.map(row => [...row]))
+    setIsEditing(false)
+  }
+
+  const saveChanges = () => {
+    setMatrix(draftMatrix.map(row => [...row]))
+    setIsEditing(false)
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <Reveal>
         <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
-          <div className="px-6 py-5" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
-            <h3 className="font-display font-600 text-[16px] text-(--color-ink)">Roles & Scopes</h3>
-            <p className="text-[13px] text-(--color-sage-dim) mt-1">Click any cell to cycle: restricted → granted → custom scope. Click a role row to view details.</p>
+          <div className="flex items-start justify-between gap-4 px-6 py-5" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
+            <div>
+              <h3 className="font-display font-600 text-[16px] text-(--color-ink)">Roles & Scopes</h3>
+              <p className="text-[13px] text-(--color-sage-dim) mt-1">
+                {isEditing
+                  ? 'Click a circle to cycle: restricted → granted → custom scope.'
+                  : 'Select Edit to change scope access, or click a role to view details.'}
+              </p>
+            </div>
+            {isEditing ? (
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={cancelEditing}
+                  className="cursor-pointer rounded-[6px] px-4 py-2 font-display text-[13px] font-600 text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={saveChanges}
+                  className="cursor-pointer rounded-[6px] bg-(--color-coral) px-4 py-2 font-display text-[13px] font-600 text-white transition-opacity hover:opacity-90"
+                >
+                  Save changes
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={startEditing}
+                className="shrink-0 cursor-pointer rounded-[6px] border border-(--color-line-light) px-4 py-2 font-display text-[13px] font-600 text-(--color-ink) transition-colors hover:border-(--color-coral) hover:text-(--color-coral)"
+              >
+                Edit
+              </button>
+            )}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -76,10 +130,10 @@ export default function Permissions() {
                         {role}
                       </button>
                     </td>
-                    {matrix[ri].map((state, ci) => (
-                      <td key={ci} className="px-4 py-4 text-center">
+                    {visibleMatrix[ri].map((state, ci) => (
+                      <td key={scopes[ci]} className="px-4 py-4 text-center">
                         <div className="flex justify-center">
-                          <CellDot state={state} onClick={() => cycleState(ri, ci)} />
+                          <CellDot state={state} editable={isEditing} onClick={() => cycleState(ri, ci)} />
                         </div>
                       </td>
                     ))}
@@ -112,13 +166,15 @@ export default function Permissions() {
               Configure scope overrides and member assignments for the <strong className="text-(--color-ink)">{roles[selectedRole]}</strong> role.
             </p>
             {scopes.map((scope, ci) => {
-              const state = matrix[selectedRole][ci]
+              const state = visibleMatrix[selectedRole][ci]
               return (
                 <div key={scope} className="flex items-center justify-between py-3" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
                   <span className="font-mono text-[12px] uppercase tracking-widest text-(--color-ink)">{scope}</span>
                   <button
+                    type="button"
                     onClick={() => cycleState(selectedRole, ci)}
-                    className="font-mono text-[11px] uppercase tracking-widest px-3 py-1 rounded-full transition-colors"
+                    disabled={!isEditing}
+                    className={`font-mono text-[11px] uppercase tracking-widest px-3 py-1 rounded-full transition-colors ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}
                     style={{
                       color: state === 'granted' ? 'var(--color-sage)' : state === 'custom' ? 'var(--color-coral)' : 'var(--color-sage-dim)',
                       border: `1px solid ${state === 'granted' ? 'rgba(158,173,156,0.4)' : state === 'custom' ? 'rgba(239,120,104,0.4)' : 'var(--color-line-light)'}`,

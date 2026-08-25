@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { createPortal } from 'react-dom'
 
 // ── Button ────────────────────────────────────────────────────────────────────
 
@@ -102,7 +103,19 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
 
 // ── Slide-Over Panel ──────────────────────────────────────────────────────────
 
-export function SlideOver({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+export function SlideOver({
+  open,
+  onClose,
+  title,
+  children,
+  fullHeight = false,
+}: {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: ReactNode
+  fullHeight?: boolean
+}) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (open) document.addEventListener('keydown', handler)
@@ -111,7 +124,7 @@ export function SlideOver({ open, onClose, title, children }: { open: boolean; o
 
   if (!open) return null
 
-  return (
+  const slideOver = (
     <div className="fixed inset-0 z-50 flex" aria-modal="true" role="dialog" aria-label={title}>
       <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="w-full max-w-[480px] bg-(--color-offwhite-raised) h-full overflow-y-auto shadow-2xl animate-slide-right">
@@ -131,6 +144,8 @@ export function SlideOver({ open, onClose, title, children }: { open: boolean; o
       </div>
     </div>
   )
+
+  return fullHeight ? createPortal(slideOver, document.body) : slideOver
 }
 
 // ── Input ─────────────────────────────────────────────────────────────────────

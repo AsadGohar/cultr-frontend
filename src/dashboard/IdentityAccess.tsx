@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { type InputHTMLAttributes, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Button, Dropdown, Input, StatusChip, StatusDot, SlideOver, Toggle, Reveal } from '../components/cultre-ui'
 
@@ -28,11 +28,386 @@ const offboardingHires = [
 const onboardingStages = ['Offer accepted', 'Documents', 'Equipment', 'System access', 'Day 1']
 const offboardingStages = ['Notice period', 'Access revoke', 'Equipment return', 'Exit interview', 'Complete']
 
+const userDetailSections = [
+  {
+    title: 'Organization & access',
+    fields: [
+      { key: 'organizationId', label: 'Organization' },
+      { key: 'departmentId', label: 'Department' },
+      { key: 'employmentProfileId', label: 'Employment profile' },
+      { key: 'locationId', label: 'Location' },
+      { key: 'managerId', label: 'Manager' },
+      { key: 'groupId', label: 'Group' },
+      { key: 'primaryRoleId', label: 'Primary role' },
+      { key: 'status', label: 'Status' },
+    ],
+  },
+  {
+    title: 'Personal information',
+    fields: [
+      { key: 'fullName', label: 'Full name' },
+      { key: 'email', label: 'Email', type: 'email' },
+      { key: 'dateOfBirth', label: 'Date of birth', type: 'date' },
+      { key: 'nationality', label: 'Nationality' },
+      { key: 'maritalStatus', label: 'Marital status' },
+      { key: 'gender', label: 'Gender' },
+    ],
+  },
+  {
+    title: 'Employment dates',
+    fields: [
+      { key: 'probationStartDate', label: 'Probation start date', type: 'date' },
+      { key: 'probationPeriodInDays', label: 'Probation period in days', type: 'number' },
+      { key: 'contractExpiryDate', label: 'Contract expiry date', type: 'date' },
+      { key: 'lastWorkingDay', label: 'Last working day', type: 'date' },
+    ],
+  },
+  {
+    title: 'Compensation',
+    fields: [
+      { key: 'basicSalary', label: 'Basic salary', type: 'number' },
+      { key: 'housingAllowance', label: 'Housing allowance', type: 'number' },
+      { key: 'transportationAllowance', label: 'Transportation allowance', type: 'number' },
+      { key: 'totalSalary', label: 'Total salary', type: 'number' },
+      { key: 'currency', label: 'Currency' },
+    ],
+  },
+  {
+    title: 'Identity & banking',
+    fields: [
+      { key: 'ssn', label: 'SSN' },
+      { key: 'bankName', label: 'Bank name' },
+      { key: 'bankAddress', label: 'Bank address', wide: true },
+      { key: 'iban', label: 'IBAN', wide: true },
+    ],
+  },
+  {
+    title: 'Contact information',
+    fields: [
+      { key: 'homeAddress', label: 'Home address', wide: true },
+      { key: 'phoneNumber', label: 'Phone number', type: 'tel' },
+    ],
+  },
+  {
+    title: 'Emergency contact',
+    fields: [
+      { key: 'emergencyContactRelationship', label: 'Relationship' },
+      { key: 'emergencyContactPhone', label: 'Emergency contact phone', type: 'tel' },
+    ],
+  },
+  {
+    title: 'Balances',
+    fields: [
+      { key: 'userLeaveBalance', label: 'User leave balance' },
+      { key: 'userWfhHoursBalance', label: 'User WFH hours balance' },
+    ],
+  },
+] as const
+
+type UserDetailKey = typeof userDetailSections[number]['fields'][number]['key']
+type UserDetails = Record<UserDetailKey, string>
+type UserDetailConstraints = Pick<InputHTMLAttributes<HTMLInputElement>,
+  | 'type'
+  | 'required'
+  | 'min'
+  | 'max'
+  | 'step'
+  | 'minLength'
+  | 'maxLength'
+  | 'pattern'
+  | 'title'
+  | 'readOnly'
+  | 'autoComplete'
+  | 'list'
+>
+
+const userDetailConstraints: Record<UserDetailKey, UserDetailConstraints> = {
+  organizationId: { type: 'text', required: true, minLength: 2, maxLength: 120 },
+  departmentId: { type: 'text', required: true, minLength: 2, maxLength: 80 },
+  employmentProfileId: { type: 'text', required: true, minLength: 2, maxLength: 80 },
+  locationId: { type: 'text', required: true, minLength: 2, maxLength: 100 },
+  managerId: { type: 'text', required: true, minLength: 2, maxLength: 120 },
+  groupId: { type: 'text', required: true, minLength: 2, maxLength: 80 },
+  primaryRoleId: { type: 'text', required: true, minLength: 2, maxLength: 80 },
+  status: {
+    required: true,
+    maxLength: 20,
+    pattern: 'Active|Inactive|Suspended|Terminated',
+    title: 'Choose Active, Inactive, Suspended, or Terminated.',
+    list: 'user-status-options',
+  },
+  fullName: { required: true, minLength: 2, maxLength: 120, autoComplete: 'name' },
+  email: { type: 'email', required: true, maxLength: 254, autoComplete: 'email' },
+  dateOfBirth: {
+    type: 'date',
+    required: true,
+    min: '1900-01-01',
+    max: new Date().toISOString().slice(0, 10),
+    autoComplete: 'bday',
+  },
+  nationality: {
+    required: true,
+    minLength: 2,
+    maxLength: 80,
+    pattern: "[A-Za-z][A-Za-z .'-]{1,79}",
+    title: 'Use letters, spaces, apostrophes, periods, or hyphens.',
+    autoComplete: 'country-name',
+    list: 'nationality-options',
+  },
+  maritalStatus: {
+    required: true,
+    pattern: 'Single|Married|Divorced|Widowed|Separated|Prefer not to say',
+    title: 'Choose a marital status from the suggested values.',
+    list: 'marital-status-options',
+  },
+  gender: {
+    required: true,
+    pattern: 'Female|Male|Non-binary|Prefer not to say',
+    title: 'Choose a gender from the suggested values.',
+    list: 'gender-options',
+  },
+  probationStartDate: { type: 'date', required: true, min: '2000-01-01' },
+  probationPeriodInDays: { type: 'number', required: true, min: 0, max: 3650, step: 1 },
+  contractExpiryDate: { type: 'date' },
+  lastWorkingDay: { type: 'date' },
+  basicSalary: { type: 'number', required: true, min: 0, max: 1000000000, step: 0.01 },
+  housingAllowance: { type: 'number', required: true, min: 0, max: 1000000000, step: 0.01 },
+  transportationAllowance: { type: 'number', required: true, min: 0, max: 1000000000, step: 0.01 },
+  totalSalary: { type: 'number', min: 0, max: 3000000000, step: 0.01, readOnly: true },
+  currency: {
+    required: true,
+    minLength: 3,
+    maxLength: 3,
+    pattern: '[A-Z]{3}',
+    title: 'Enter a three-letter uppercase currency code.',
+    list: 'currency-options',
+  },
+  ssn: {
+    minLength: 4,
+    maxLength: 20,
+    pattern: '[0-9*-]{4,20}',
+    title: 'Use digits, hyphens, or masked asterisks.',
+  },
+  bankName: { maxLength: 120, autoComplete: 'organization' },
+  bankAddress: { maxLength: 240, autoComplete: 'street-address' },
+  iban: {
+    minLength: 15,
+    maxLength: 42,
+    pattern: '[A-Za-z]{2}[0-9]{2}[A-Za-z0-9 ]{11,38}',
+    title: 'Enter a valid IBAN beginning with a two-letter country code and two check digits.',
+  },
+  homeAddress: { required: true, maxLength: 240, autoComplete: 'street-address' },
+  phoneNumber: {
+    type: 'tel',
+    required: true,
+    minLength: 7,
+    maxLength: 25,
+    pattern: '[+0-9() -]{7,25}',
+    title: 'Use 7–25 digits and standard phone-number symbols.',
+    autoComplete: 'tel',
+  },
+  emergencyContactRelationship: {
+    required: true,
+    maxLength: 40,
+    list: 'relationship-options',
+  },
+  emergencyContactPhone: {
+    type: 'tel',
+    required: true,
+    minLength: 7,
+    maxLength: 25,
+    pattern: '[+0-9() -]{7,25}',
+    title: 'Use 7–25 digits and standard phone-number symbols.',
+  },
+  userLeaveBalance: { type: 'number', required: true, min: 0, max: 1000, step: 0.5 },
+  userWfhHoursBalance: { type: 'number', required: true, min: 0, max: 10000, step: 0.5 },
+}
+
+const initialUserDetails: UserDetails[] = users.map((user, index) => {
+  const basicSalary = 90000 + (index * 7500)
+  const housingAllowance = 18000 + (index * 1500)
+  const transportationAllowance = 6000 + (index * 500)
+  const nationality = ['Italian', 'Canadian', 'Nigerian', 'Indian', 'South Korean', 'Spanish'][index]
+  const gender = ['Female', 'Male', 'Female', 'Female', 'Male', 'Female'][index]
+
+  return {
+    organizationId: 'Cultre Inc.',
+    departmentId: user.dept,
+    employmentProfileId: user.role === 'Admin' ? 'Leadership' : 'Full-time employee',
+    locationId: ['New York', 'Toronto', 'Lagos', 'Mumbai', 'Seoul', 'Madrid'][index],
+    managerId: index === 0 ? 'Executive team' : 'Alexandra Rossi',
+    dateOfBirth: `199${index}-0${(index % 8) + 1}-1${index}`,
+    nationality,
+    probationStartDate: `202${(index % 4) + 1}-0${(index % 8) + 1}-01`,
+    probationPeriodInDays: '90',
+    contractExpiryDate: `2027-12-${String(20 + index).padStart(2, '0')}`,
+    lastWorkingDay: '',
+    basicSalary: String(basicSalary),
+    housingAllowance: String(housingAllowance),
+    totalSalary: String(basicSalary + housingAllowance + transportationAllowance),
+    currency: 'USD',
+    ssn: `***-**-${String(1200 + index)}`,
+    bankName: 'First National Bank',
+    bankAddress: '100 Finance Avenue, Central District',
+    iban: `GB82 WEST 1234 5698 7654 3${index}`,
+    maritalStatus: index % 2 === 0 ? 'Single' : 'Married',
+    homeAddress: `${100 + index} Cedar Street, Central District`,
+    phoneNumber: `+1 555 010${index}`,
+    emergencyContactRelationship: index % 2 === 0 ? 'Sibling' : 'Spouse',
+    emergencyContactPhone: `+1 555 020${index}`,
+    gender,
+    transportationAllowance: String(transportationAllowance),
+    fullName: user.name,
+    email: `${user.name.toLowerCase().replaceAll(' ', '.')}@cultre.example`,
+    status: 'Active',
+    groupId: user.role === 'Manager' ? 'Managers' : user.role === 'Admin' ? 'Administrators' : 'Employees',
+    primaryRoleId: user.role,
+    userLeaveBalance: String(18 - index),
+    userWfhHoursBalance: String(24 + (index * 4)),
+  }
+})
+
+function UserDetailsModal({
+  userName,
+  details,
+  onChange,
+  onClose,
+  onSave,
+}: {
+  userName: string
+  details: UserDetails | null
+  onChange: (key: UserDetailKey, value: string) => void
+  onClose: () => void
+  onSave: () => void
+}) {
+  useEffect(() => {
+    if (!details) return
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    return () => document.removeEventListener('keydown', closeOnEscape)
+  }, [details, onClose])
+
+  if (!details) return null
+
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 py-6">
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+        aria-label="Close user details dialog"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-user-title"
+        className="relative z-10 flex max-h-[92vh] w-full max-w-[1040px] flex-col overflow-hidden rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-(--color-line-light) px-6 py-5">
+          <div>
+            <h2 id="edit-user-title" className="font-display font-700 text-xl text-(--color-ink)">Edit user details</h2>
+            <p className="mt-1 text-[13px] text-(--color-sage-dim)">{userName}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
+            aria-label="Close dialog"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <path d="M12 4L4 12M4 4l8 8" />
+            </svg>
+          </button>
+        </div>
+
+        <form
+          className="flex min-h-0 flex-1 flex-col"
+          onSubmit={event => {
+            event.preventDefault()
+            onSave()
+          }}
+        >
+          <datalist id="user-status-options">
+            {['Active', 'Inactive', 'Suspended', 'Terminated'].map(value => <option key={value} value={value} />)}
+          </datalist>
+          <datalist id="nationality-options">
+            {['American', 'British', 'Canadian', 'Indian', 'Italian', 'Nigerian', 'South Korean', 'Spanish'].map(value => <option key={value} value={value} />)}
+          </datalist>
+          <datalist id="marital-status-options">
+            {['Single', 'Married', 'Divorced', 'Widowed', 'Separated', 'Prefer not to say'].map(value => <option key={value} value={value} />)}
+          </datalist>
+          <datalist id="gender-options">
+            {['Female', 'Male', 'Non-binary', 'Prefer not to say'].map(value => <option key={value} value={value} />)}
+          </datalist>
+          <datalist id="currency-options">
+            {['AED', 'CAD', 'EUR', 'GBP', 'PKR', 'USD'].map(value => <option key={value} value={value} />)}
+          </datalist>
+          <datalist id="relationship-options">
+            {['Spouse', 'Parent', 'Sibling', 'Child', 'Friend', 'Guardian'].map(value => <option key={value} value={value} />)}
+          </datalist>
+
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="grid gap-5 lg:grid-cols-2">
+              {userDetailSections.map(section => (
+                <section key={section.title} className="rounded-[10px] border border-(--color-line-light) bg-(--color-offwhite) p-5">
+                  <h3 className="mb-4 font-display font-600 text-[15px] text-(--color-ink)">{section.title}</h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {section.fields.map(field => (
+                      <div
+                        key={field.key}
+                        className={`${'wide' in field && field.wide ? 'sm:col-span-2' : ''} ${field.key === 'emergencyContactRelationship' || field.key === 'emergencyContactPhone' || field.key === 'userLeaveBalance' || field.key === 'userWfhHoursBalance' ? '[&>div>label]:flex [&>div>label]:h-9 [&>div>label]:items-end' : ''}`}
+                      >
+                        <Input
+                          id={`user-detail-${field.key}`}
+                          name={field.key}
+                          label={field.label}
+                          {...userDetailConstraints[field.key]}
+                          type={userDetailConstraints[field.key].type ?? 'text'}
+                          min={field.key === 'contractExpiryDate' || field.key === 'lastWorkingDay'
+                            ? details.probationStartDate || undefined
+                            : userDetailConstraints[field.key].min}
+                          value={details[field.key]}
+                          onChange={event => onChange(field.key, event.target.value)}
+                          className={userDetailConstraints[field.key].readOnly ? 'cursor-not-allowed opacity-70' : ''}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 border-t border-(--color-line-light) bg-(--color-offwhite-raised) px-6 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="cursor-pointer rounded-[6px] px-5 py-3 font-display font-600 text-[14px] text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
+            >
+              Cancel
+            </button>
+            <Button type="submit" className="bg-(--color-coral) hover:bg-(--color-coral)">
+              Save changes
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
 function UsersView() {
   const [search, setSearch] = useState('')
   const [sortCol, setSortCol] = useState('name')
   const [sortAsc, setSortAsc] = useState(true)
   const [selected, setSelected] = useState<number | null>(null)
+  const [userDetails, setUserDetails] = useState<UserDetails[]>(initialUserDetails)
+  const [editingUser, setEditingUser] = useState<number | null>(null)
+  const [userDetailsDraft, setUserDetailsDraft] = useState<UserDetails | null>(null)
 
   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -42,6 +417,43 @@ function UsersView() {
   const handleSort = (col: string) => {
     if (sortCol === col) setSortAsc(!sortAsc)
     else { setSortCol(col); setSortAsc(true) }
+  }
+
+  const openUserDetailsModal = () => {
+    if (selected === null) return
+
+    setEditingUser(selected)
+    setUserDetailsDraft({ ...userDetails[selected] })
+  }
+
+  const closeUserDetailsModal = () => {
+    setEditingUser(null)
+    setUserDetailsDraft(null)
+  }
+
+  const updateUserDetailsDraft = (key: UserDetailKey, value: string) => {
+    setUserDetailsDraft(current => {
+      if (!current) return current
+
+      const normalizedValue = key === 'currency' ? value.toUpperCase().slice(0, 3) : value
+      const next = { ...current, [key]: normalizedValue }
+      if (key === 'basicSalary' || key === 'housingAllowance' || key === 'transportationAllowance') {
+        const total = Number(next.basicSalary || 0)
+          + Number(next.housingAllowance || 0)
+          + Number(next.transportationAllowance || 0)
+        next.totalSalary = Number.isFinite(total) ? String(Math.round(total * 100) / 100) : '0'
+      }
+      return next
+    })
+  }
+
+  const saveUserDetails = () => {
+    if (editingUser === null || !userDetailsDraft) return
+
+    setUserDetails(current => current.map((details, index) => (
+      index === editingUser ? userDetailsDraft : details
+    )))
+    closeUserDetailsModal()
   }
 
   return (
@@ -100,7 +512,7 @@ function UsersView() {
                 }}
                 onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-offwhite)')}
                 onMouseLeave={e => (e.currentTarget.style.background = '')}
-                onClick={() => setSelected(i)}
+                onClick={() => setSelected(users.findIndex(user => user.name === u.name))}
               >
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
@@ -125,7 +537,7 @@ function UsersView() {
                 </td>
                 <td className="px-5 py-4 font-mono text-[12px] text-(--color-sage-dim)">{u.lastActive}</td>
                 <td className="px-5 py-4">
-                  <button className="text-[13px] text-(--color-coral) hover:underline underline-offset-2">View</button>
+                  <button type="button" className="text-[13px] text-(--color-coral) hover:underline underline-offset-2">View</button>
                 </td>
               </tr>
             ))}
@@ -151,6 +563,7 @@ function UsersView() {
         open={selected !== null}
         onClose={() => setSelected(null)}
         title={selected !== null ? users[selected]?.name : ''}
+        fullHeight
       >
         {selected !== null && (
           <div className="flex flex-col gap-6">
@@ -178,11 +591,11 @@ function UsersView() {
               ))}
             </div>
             <div className="flex gap-3 pt-2">
-              <button className="flex-1 py-3 rounded-[6px] font-display font-600 text-[14px]"
+              <button type="button" onClick={openUserDetailsModal} className="flex-1 py-3 rounded-[6px] font-display font-600 text-[14px]"
                 style={{ background: 'var(--color-coral)', color: 'white' }}>
                 Edit user
               </button>
-              <button className="flex-1 py-3 rounded-[6px] font-display font-600 text-[14px] border"
+              <button type="button" className="flex-1 py-3 rounded-[6px] font-display font-600 text-[14px] border"
                 style={{ border: '1px solid var(--color-line-light)', color: 'var(--color-sage-dim)' }}>
                 Suspend
               </button>
@@ -190,6 +603,14 @@ function UsersView() {
           </div>
         )}
       </SlideOver>
+
+      <UserDetailsModal
+        userName={editingUser !== null ? users[editingUser].name : ''}
+        details={userDetailsDraft}
+        onChange={updateUserDetailsDraft}
+        onClose={closeUserDetailsModal}
+        onSave={saveUserDetails}
+      />
     </div>
   )
 }
@@ -448,20 +869,20 @@ type ApprovalStep = { id: number; userName: string }
 type ApprovalChain = { id: number; name: string; steps: ApprovalStep[] }
 type AssignmentTargetType = 'group' | 'user' | 'department'
 type ApprovalChainAssignment = {
+  id: number
   approvalChainId: number
-  requestId: string
   requestType: string
   setById: string
   setForId: string
   setForType: AssignmentTargetType
 }
 
-const requestOptions = [
-  { value: 'LR-1042|leave', label: 'LR-1042', description: 'Leave request · Marcus Chen' },
-  { value: 'WFH-208|wfh', label: 'WFH-208', description: 'Work from home request · Jasmine Okoro' },
-  { value: 'PR-031|promotion', label: 'PR-031', description: 'Promotion request · Taehyun Park' },
-  { value: 'LN-014|loan', label: 'LN-014', description: 'Loan request · Rosa Torres' },
-  { value: 'SS-087|shift_swap', label: 'SS-087', description: 'Shift swap request · Lena Singh' },
+const requestTypeOptions = [
+  { value: 'leave', label: 'Leave request' },
+  { value: 'wfh', label: 'Work from home request' },
+  { value: 'promotion', label: 'Promotion request' },
+  { value: 'loan', label: 'Loan request' },
+  { value: 'shift_swap', label: 'Shift swap request' },
 ]
 
 const groupOptions = [
@@ -486,15 +907,21 @@ function ChainsView() {
   const [chainName, setChainName] = useState('')
   const [steps, setSteps] = useState<ApprovalStep[]>([{ id: 0, userName: '' }])
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
+  const [isViewingAssignments, setIsViewingAssignments] = useState(false)
+  const [isEditingChain, setIsEditingChain] = useState(false)
+  const [editChainName, setEditChainName] = useState('')
+  const [editSteps, setEditSteps] = useState<ApprovalStep[]>([])
   const [assignments, setAssignments] = useState<ApprovalChainAssignment[]>([])
   const [isAssigning, setIsAssigning] = useState(false)
-  const [requestId, setRequestId] = useState('')
   const [requestType, setRequestType] = useState('')
   const [setForType, setSetForType] = useState<AssignmentTargetType>('user')
   const [setForId, setSetForId] = useState('')
   const [assignmentSaved, setAssignmentSaved] = useState(false)
 
   const selectedChain = chains.find(chain => chain.id === selectedChainId) ?? null
+  const selectedChainAssignments = selectedChain
+    ? assignments.filter(assignment => assignment.approvalChainId === selectedChain.id)
+    : []
   const userOptions = users.map((user, index) => ({
     value: `user-${index + 1}`,
     label: user.name,
@@ -510,6 +937,15 @@ function ChainsView() {
     ? departmentOptions
     : groupOptions
 
+  const getAssignmentTargetLabel = (assignment: ApprovalChainAssignment) => {
+    const options = assignment.setForType === 'user'
+      ? userOptions
+      : assignment.setForType === 'department'
+      ? departmentOptions
+      : groupOptions
+    return options.find(option => option.value === assignment.setForId)?.label ?? assignment.setForId
+  }
+
   const closeAddChain = () => {
     setIsAddingChain(false)
     setChainName('')
@@ -518,7 +954,6 @@ function ChainsView() {
 
   const resetAssignmentForm = () => {
     setIsAssigning(false)
-    setRequestId('')
     setRequestType('')
     setSetForType('user')
     setSetForId('')
@@ -527,6 +962,10 @@ function ChainsView() {
 
   const closeChainDetails = () => {
     setSelectedChainId(null)
+    setIsViewingAssignments(false)
+    setIsEditingChain(false)
+    setEditChainName('')
+    setEditSteps([])
     resetAssignmentForm()
   }
 
@@ -565,6 +1004,48 @@ function ChainsView() {
     setSteps(current => current.filter(step => step.id !== id))
   }
 
+  const startEditingChain = () => {
+    if (!selectedChain) return
+
+    setEditChainName(selectedChain.name)
+    setEditSteps(selectedChain.steps.map(step => ({ ...step })))
+    setIsEditingChain(true)
+    resetAssignmentForm()
+  }
+
+  const cancelEditingChain = () => {
+    setIsEditingChain(false)
+    setEditChainName('')
+    setEditSteps([])
+  }
+
+  const updateEditStep = (id: number, userName: string) => {
+    setEditSteps(current => current.map(step => step.id === id ? { ...step, userName } : step))
+  }
+
+  const addEditStep = () => {
+    setEditSteps(current => [
+      ...current,
+      { id: Math.max(-1, ...current.map(step => step.id)) + 1, userName: '' },
+    ])
+  }
+
+  const removeEditStep = (id: number) => {
+    setEditSteps(current => current.filter(step => step.id !== id))
+  }
+
+  const saveEditedChain = () => {
+    const name = editChainName.trim()
+    if (!selectedChain || !name || editSteps.some(step => !step.userName)) return
+
+    setChains(current => current.map(chain => (
+      chain.id === selectedChain.id
+        ? { ...chain, name, steps: editSteps }
+        : chain
+    )))
+    cancelEditingChain()
+  }
+
   const saveChain = () => {
     const name = chainName.trim()
     if (!name || steps.some(step => !step.userName)) return
@@ -581,13 +1062,13 @@ function ChainsView() {
   }
 
   const assignChain = () => {
-    if (!selectedChain || !requestId.trim() || !requestType || !setForId) return
+    if (!selectedChain || !requestType || !setForId) return
 
     setAssignments(current => [
       ...current,
       {
+        id: Math.max(-1, ...current.map(assignment => assignment.id)) + 1,
         approvalChainId: selectedChain.id,
-        requestId: requestId.trim(),
         requestType,
         setById: 'user-1',
         setForId,
@@ -595,10 +1076,13 @@ function ChainsView() {
       },
     ])
     setIsAssigning(false)
-    setRequestId('')
     setRequestType('')
     setSetForId('')
     setAssignmentSaved(true)
+  }
+
+  const revokeAssignment = (assignmentId: number) => {
+    setAssignments(current => current.filter(assignment => assignment.id !== assignmentId))
   }
   return (
     <div className="flex flex-col gap-5">
@@ -623,42 +1107,57 @@ function ChainsView() {
         {chains.map(chain => {
           const assignmentCount = assignments.filter(assignment => assignment.approvalChainId === chain.id).length
           return (
-            <button
-              type="button"
+            <article
               key={chain.id}
-              onClick={() => {
-                resetAssignmentForm()
-                setSelectedChainId(chain.id)
-              }}
-              className="group min-h-36 cursor-pointer rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) p-5 text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-(--color-coral) hover:shadow-[0_10px_24px_rgba(11,20,38,0.07)]"
+              className="group min-h-36 rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-(--color-coral) hover:shadow-[0_10px_24px_rgba(11,20,38,0.07)]"
             >
-              <div className="flex items-start justify-between gap-4">
-                <h4 className="font-display font-600 text-[15px] text-(--color-ink) transition-colors group-hover:text-(--color-coral)">
-                  {chain.name}
-                </h4>
-                <svg className="shrink-0 text-(--color-sage-dim) transition-transform group-hover:translate-x-0.5 group-hover:text-(--color-coral)" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                  <path d="M6 3l5 5-5 5" />
-                </svg>
-              </div>
-              <div className="mt-5 flex items-center gap-2">
-                {chain.steps.slice(0, 4).map((step, index) => (
-                  <div
-                    key={step.id}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-(--color-offwhite-raised) font-mono text-[9px] text-(--color-sage)"
-                    style={{ background: 'var(--color-navy)', marginLeft: index > 0 ? '-7px' : undefined }}
-                    title={step.userName}
-                  >
-                    {step.userName.split(' ').map(part => part[0]).join('')}
-                  </div>
-                ))}
-                <span className="ml-1 font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
-                  {chain.steps.length} {chain.steps.length === 1 ? 'step' : 'steps'}
-                </span>
-              </div>
-              <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
+              <button
+                type="button"
+                onClick={() => {
+                  resetAssignmentForm()
+                  setIsViewingAssignments(false)
+                  setIsEditingChain(false)
+                  setSelectedChainId(chain.id)
+                }}
+                className="w-full cursor-pointer p-5 pb-0 text-left"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <h4 className="font-display font-600 text-[15px] text-(--color-ink) transition-colors group-hover:text-(--color-coral)">
+                    {chain.name}
+                  </h4>
+                  <svg className="shrink-0 text-(--color-sage-dim) transition-transform group-hover:translate-x-0.5 group-hover:text-(--color-coral)" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                    <path d="M6 3l5 5-5 5" />
+                  </svg>
+                </div>
+                <div className="mt-5 flex items-center gap-2">
+                  {chain.steps.slice(0, 4).map((step, index) => (
+                    <div
+                      key={step.id}
+                      className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-(--color-offwhite-raised) font-mono text-[9px] text-(--color-sage)"
+                      style={{ background: 'var(--color-navy)', marginLeft: index > 0 ? '-7px' : undefined }}
+                      title={step.userName}
+                    >
+                      {step.userName.split(' ').map(part => part[0]).join('')}
+                    </div>
+                  ))}
+                  <span className="ml-1 font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
+                    {chain.steps.length} {chain.steps.length === 1 ? 'step' : 'steps'}
+                  </span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  resetAssignmentForm()
+                  setIsEditingChain(false)
+                  setIsViewingAssignments(true)
+                  setSelectedChainId(chain.id)
+                }}
+                className="mx-5 mb-5 mt-4 cursor-pointer font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim) transition-colors hover:text-(--color-coral) hover:underline"
+              >
                 {assignmentCount} {assignmentCount === 1 ? 'assignment' : 'assignments'}
-              </p>
-            </button>
+              </button>
+            </article>
           )
         })}
       </div>
@@ -682,22 +1181,158 @@ function ChainsView() {
                 <h2 id="chain-details-title" className="font-display font-700 text-xl text-(--color-ink)">{selectedChain.name}</h2>
                 <p className="mt-1 text-[13px] text-(--color-sage-dim)">
                   {selectedChain.steps.length} {selectedChain.steps.length === 1 ? 'approval step' : 'approval steps'} ·{' '}
-                  {assignments.filter(assignment => assignment.approvalChainId === selectedChain.id).length} assignments
+                  {selectedChainAssignments.length} assignments
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={closeChainDetails}
-                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
-                aria-label="Close dialog"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                  <path d="M12 4L4 12M4 4l8 8" />
-                </svg>
-              </button>
+              <div className="flex shrink-0 items-center gap-2">
+                {!isEditingChain && !isViewingAssignments && (
+                  <button
+                    type="button"
+                    onClick={startEditingChain}
+                    className="cursor-pointer rounded-[6px] border border-(--color-line-light) px-3 py-1.5 font-display text-[13px] font-600 text-(--color-ink) transition-colors hover:border-(--color-coral) hover:text-(--color-coral)"
+                  >
+                    Edit
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={closeChainDetails}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
+                  aria-label="Close dialog"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                    <path d="M12 4L4 12M4 4l8 8" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col gap-6 px-6 py-6">
+              {isViewingAssignments ? (
+                <section>
+                  <h3 className="font-display font-600 text-[15px] text-(--color-ink)">Assignment records</h3>
+                  <p className="mt-1 text-[13px] text-(--color-sage-dim)">
+                    Request types and people covered by this approval chain.
+                  </p>
+                  {selectedChainAssignments.length === 0 ? (
+                    <div className="mt-4 rounded-[8px] border border-dashed border-(--color-line-light) bg-(--color-offwhite) px-5 py-8 text-center">
+                      <p className="text-[14px] font-500 text-(--color-ink)">No assignment records yet</p>
+                      <p className="mt-1 text-[13px] text-(--color-sage-dim)">Assign this chain to a request type to create a record.</p>
+                    </div>
+                  ) : (
+                    <div className="mt-4 flex flex-col gap-3">
+                      {selectedChainAssignments.map(assignment => (
+                        <div key={assignment.id} className="rounded-[8px] border border-(--color-line-light) bg-(--color-offwhite) p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <p className="text-[14px] font-600 text-(--color-ink)">
+                                {requestTypeOptions.find(option => option.value === assignment.requestType)?.label ?? assignment.requestType}
+                              </p>
+                              <p className="mt-1 text-[13px] text-(--color-sage-dim)">
+                                Assigned to {getAssignmentTargetLabel(assignment)}
+                              </p>
+                            </div>
+                            <span className="rounded-full bg-(--color-navy)/8 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-(--color-sage-dim)">
+                              {assignment.setForType}
+                            </span>
+                          </div>
+                          <div className="mt-3 flex items-center justify-between gap-4 border-t border-(--color-line-light) pt-3">
+                            <p className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
+                              Assigned by {userOptions.find(option => option.value === assignment.setById)?.label ?? 'Administrator'}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => revokeAssignment(assignment.id)}
+                              className="cursor-pointer font-mono text-[10px] uppercase tracking-widest text-(--color-coral) hover:underline"
+                              aria-label={`Revoke ${requestTypeOptions.find(option => option.value === assignment.requestType)?.label ?? assignment.requestType} assignment for ${getAssignmentTargetLabel(assignment)}`}
+                            >
+                              Revoke
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ) : isEditingChain ? (
+                <form
+                  className="flex flex-col gap-6"
+                  onSubmit={event => {
+                    event.preventDefault()
+                    saveEditedChain()
+                  }}
+                >
+                  <Input
+                    autoFocus
+                    label="Approval chain name"
+                    value={editChainName}
+                    onChange={event => setEditChainName(event.target.value)}
+                    placeholder="e.g. Leave request approvals"
+                  />
+
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <h3 className="font-display font-600 text-[15px] text-(--color-ink)">Approval steps</h3>
+                      <p className="mt-1 text-[13px] text-(--color-sage-dim)">Approvals will run from the first step to the last.</p>
+                    </div>
+                    {editSteps.map((step, index) => (
+                      <div key={step.id} className="rounded-[8px] border border-(--color-line-light) bg-(--color-offwhite) p-4">
+                        <div className="mb-2 flex items-center justify-between gap-4">
+                          <span className="font-mono text-[11px] uppercase tracking-widest text-(--color-sage-dim)">
+                            Step {index + 1}
+                          </span>
+                          {editSteps.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeEditStep(step.id)}
+                              className="cursor-pointer font-mono text-[10px] uppercase tracking-widest text-(--color-coral) hover:underline"
+                            >
+                              Remove step
+                            </button>
+                          )}
+                        </div>
+                        <Dropdown
+                          value={step.userName}
+                          onChange={value => updateEditStep(step.id, value as string)}
+                          options={users.map(user => ({
+                            value: user.name,
+                            label: user.name,
+                            description: `${user.role} · ${user.dept}`,
+                          }))}
+                          placeholder="Select a user"
+                          searchPlaceholder="Search users..."
+                          searchable
+                        />
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addEditStep}
+                      className="cursor-pointer rounded-[8px] border border-dashed border-(--color-line-light) py-3 font-mono text-[11px] uppercase tracking-widest text-(--color-sage-dim) transition-colors hover:border-(--color-coral) hover:text-(--color-coral)"
+                    >
+                      + Add step
+                    </button>
+                  </div>
+
+                  <div className="flex justify-end gap-3 border-t border-(--color-line-light) pt-5">
+                    <button
+                      type="button"
+                      onClick={cancelEditingChain}
+                      className="cursor-pointer rounded-[6px] px-5 py-3 font-display font-600 text-[14px] text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
+                    >
+                      Cancel
+                    </button>
+                    <Button
+                      type="submit"
+                      disabled={!editChainName.trim() || editSteps.some(step => !step.userName)}
+                      className="bg-(--color-coral) hover:bg-(--color-coral) disabled:opacity-100"
+                    >
+                      Save changes
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <>
               <section>
                 <h3 className="mb-4 font-display font-600 text-[15px] text-(--color-ink)">Approval steps</h3>
                 <div className="flex flex-col gap-0">
@@ -758,19 +1393,15 @@ function ChainsView() {
                 >
                   <div>
                     <h3 className="font-display font-600 text-[15px] text-(--color-ink)">Assign approval chain</h3>
-                    <p className="mt-1 text-[13px] text-(--color-sage-dim)">Choose a request and who this approval chain should apply to.</p>
+                    <p className="mt-1 text-[13px] text-(--color-sage-dim)">Choose a request type and who this approval chain should apply to.</p>
                   </div>
                   <div className="grid gap-4">
                     <Dropdown
-                      label="Request"
-                      value={requestId && requestType ? `${requestId}|${requestType}` : ''}
-                      onChange={value => {
-                        const [nextRequestId, nextRequestType] = (value as string).split('|')
-                        setRequestId(nextRequestId)
-                        setRequestType(nextRequestType)
-                      }}
-                      options={requestOptions}
-                      placeholder="Select a request"
+                      label="Request type"
+                      value={requestType}
+                      onChange={value => setRequestType(value as string)}
+                      options={requestTypeOptions}
+                      placeholder="Select a request type"
                       searchable
                     />
                     <Dropdown
@@ -805,13 +1436,15 @@ function ChainsView() {
                     </button>
                     <Button
                       type="submit"
-                      disabled={!requestId.trim() || !requestType || !setForId}
+                      disabled={!requestType || !setForId}
                       className="bg-(--color-coral) hover:bg-(--color-coral) disabled:opacity-100"
                     >
                       Assign chain
                     </Button>
                   </div>
                 </form>
+              )}
+                </>
               )}
             </div>
           </div>
