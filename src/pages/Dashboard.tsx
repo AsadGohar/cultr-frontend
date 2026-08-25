@@ -7,6 +7,7 @@ import TimeAttendance, { type TimeAttendanceView } from '../dashboard/TimeAttend
 import LeaveRequests, { type RequestTab } from '../dashboard/LeaveRequests'
 import Notifications, { type NotificationTab } from '../dashboard/Notifications'
 import Settings, { type SettingSection } from '../dashboard/Settings'
+import Playbooks from '../dashboard/Playbooks'
 import { isDashboardViewEnabled } from '../dashboard/featureAccess'
 import { Tooltip } from '../components/cultre-ui'
 import { useFeatureFlags } from '../features/feature-flags'
@@ -15,6 +16,7 @@ import { useFeatureFlags } from '../features/feature-flags'
 
 type View =
   | 'overview'
+  | 'playbooks'
   | 'users' | 'mfa' | 'onboarding' | 'offboarding' | 'chains'
   | 'roles' | 'policies'
   | 'clock' | 'overtime' | 'reports'
@@ -60,6 +62,7 @@ const icons = {
   zap: <Icon d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />,
   settings: <Icon d="M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />,
   creditCard: <Icon d="M1 4h22v16H1zM1 10h22" />,
+  playbook: <Icon d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2zM9 7h7M9 11h7" />,
 }
 
 // ── Nav groups ────────────────────────────────────────────────────────────────
@@ -68,6 +71,10 @@ const navGroups: NavGroup[] = [
   {
     section: 'Overview',
     items: [{ view: 'overview', label: 'Home', icon: icons.home }],
+  },
+  {
+    section: 'Playbooks',
+    items: [{ view: 'playbooks', label: 'Playbooks', icon: icons.playbook }],
   },
   {
     section: 'Identity & Access',
@@ -120,8 +127,9 @@ const navGroups: NavGroup[] = [
 
 // ── Breadcrumb map ────────────────────────────────────────────────────────────
 
-const breadcrumbs: Record<View, [{ label: string; view: View }, { label: string; view: View }]> = {
+const breadcrumbs: Record<View, { label: string; view: View }[]> = {
   overview: [{ label: 'Overview', view: 'overview' }, { label: 'Home', view: 'overview' }],
+  playbooks: [{ label: 'Playbooks', view: 'playbooks' }],
   users: [{ label: 'Identity & Access', view: 'users' }, { label: 'Users', view: 'users' }],
   mfa: [{ label: 'Identity & Access', view: 'users' }, { label: 'MFA & Security', view: 'mfa' }],
   onboarding: [{ label: 'Identity & Access', view: 'users' }, { label: 'Onboarding', view: 'onboarding' }],
@@ -164,7 +172,7 @@ function Sidebar({
 
   return (
     <aside
-      className="relative flex flex-col h-full overflow-visible flex-shrink-0"
+      className="relative flex h-full min-h-0 flex-shrink-0 flex-col overflow-visible"
       style={{
         width: w,
         minWidth: w,
@@ -213,7 +221,7 @@ function Sidebar({
       </button>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4" aria-label="Main navigation">
+      <nav className="min-h-0 flex-1 overflow-y-auto py-4" aria-label="Main navigation">
         {navGroups.map(({ section, items }) => {
           const visibleItems = items.filter(item => isViewEnabled(item.view))
 
@@ -393,6 +401,7 @@ function ViewContent({
 }) {
   if (!isViewEnabled(view)) return <Overview />
   if (view === 'overview') return <Overview />
+  if (view === 'playbooks') return <Playbooks />
   if (view === 'users' || view === 'mfa' || view === 'onboarding' || view === 'offboarding' || view === 'chains') {
     return <IdentityAccess sub={view as IdentityAccessView} onSubChange={onView} />
   }
@@ -456,9 +465,9 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--color-offwhite)' }}>
+    <div className="flex h-dvh min-h-0 overflow-hidden" style={{ background: 'var(--color-offwhite)' }}>
       {/* Desktop sidebar */}
-      <div className="hidden md:flex">
+      <div className="hidden h-full min-h-0 flex-shrink-0 md:flex">
         <Sidebar
           collapsed={collapsed}
           onToggle={() => setCollapsed(!collapsed)}
@@ -485,7 +494,7 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
       )}
 
       {/* Main */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {/* Top bar */}
         <div className="relative">
           {/* Mobile hamburger */}
@@ -502,7 +511,7 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
         </div>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain p-6 md:p-8">
           <ViewContent view={view} onView={handleView} isViewEnabled={isViewEnabled} />
         </main>
       </div>
