@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { SlideOver, Reveal } from '../components/cultr-ui'
+import { SlideOver, Reveal } from '../components/cultre-ui'
 
 const roles = ['Admin', 'Manager', 'Employee', 'Contractor']
 const scopes = ['Payroll', 'Records', 'Approvals', 'Reports', 'Settings', 'Audit']

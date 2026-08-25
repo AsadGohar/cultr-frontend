@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import Overview from '../dashboard/Overview'
 import IdentityAccess, { type IdentityAccessView } from '../dashboard/IdentityAccess'
 import Permissions from '../dashboard/Permissions'
@@ -6,7 +6,9 @@ import TimeAttendance, { type TimeAttendanceView } from '../dashboard/TimeAttend
 import LeaveRequests, { type RequestTab } from '../dashboard/LeaveRequests'
 import Notifications, { type NotificationTab } from '../dashboard/Notifications'
 import Settings, { type SettingSection } from '../dashboard/Settings'
-import { Tooltip } from '../components/cultr-ui'
+import { isDashboardViewEnabled } from '../dashboard/featureAccess'
+import { Tooltip } from '../components/cultre-ui'
+import { useFeatureFlags } from '../features/feature-flags'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -32,7 +34,7 @@ interface NavGroup {
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
-const Icon = ({ d, ...rest }: { d: string; [k: string]: unknown }) => (
+const Icon = ({ d, ...rest }: { d: string;[k: string]: unknown }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...rest}>
     <path d={d} />
   </svg>
@@ -144,11 +146,13 @@ function Sidebar({
   onToggle,
   view,
   onView,
+  isViewEnabled,
 }: {
   collapsed: boolean
   onToggle: () => void
   view: View
   onView: (v: View) => void
+  isViewEnabled: (view: View) => boolean
 }) {
   const w = collapsed ? '72px' : '248px'
 
@@ -164,14 +168,17 @@ function Sidebar({
       }}
     >
       {/* Wordmark */}
-      <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-line-dark)' }}>
+      <div
+        className={`flex h-16 flex-shrink-0 items-center ${collapsed ? 'justify-center px-0' : 'gap-3 px-4'}`}
+        style={{ borderBottom: '1px solid var(--color-line-dark)' }}
+      >
         <div className="w-7 h-7 rounded-[6px] flex items-center justify-center flex-shrink-0"
           style={{ background: 'var(--color-coral)' }}>
-            <img src="/cultr-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
+          <img src="/cultre-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
         </div>
         {!collapsed && (
           <span className="font-display font-700 text-[15px] text-(--color-offwhite) truncate tracking-tight">
-            Cultr HR
+            Cultre
           </span>
         )}
       </div>
@@ -201,14 +208,19 @@ function Sidebar({
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4" aria-label="Main navigation">
-        {navGroups.map(({ section, items }) => (
-          <div key={section} className="mb-1">
-            {!collapsed && (
-              <div className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.15em] text-(--color-white)">
-                {section}
-              </div>
-            )}
-            {items.map(({ view: v, label, icon }) => {
+        {navGroups.map(({ section, items }) => {
+          const visibleItems = items.filter(item => isViewEnabled(item.view))
+
+          if (visibleItems.length === 0) return null
+
+          return (
+            <div key={section} className="mb-1">
+              {!collapsed && (
+                <div className="px-4 py-2 font-mono text-[9px] uppercase tracking-[0.15em] text-(--color-white)">
+                  {section}
+                </div>
+              )}
+              {visibleItems.map(({ view: v, label, icon }) => {
               const active = view === v || (
                 v === 'leave' && ['requests-all', 'wfh', 'promotion', 'loan'].includes(view)
               )
@@ -217,7 +229,7 @@ function Sidebar({
                   key={v}
                   onClick={() => onView(v)}
                   title={collapsed ? label : undefined}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 transition-colors relative text-left cursor-pointer"
+                  className={`relative flex w-full items-center py-2.5 text-left transition-colors cursor-pointer ${collapsed ? 'justify-center px-0' : 'gap-3 px-4'}`}
                   style={{
                     color: active ? 'var(--color-coral)' : 'var(--color-sage-dim)',
                     background: active ? 'rgba(239,120,104,0.08)' : 'transparent',
@@ -232,15 +244,16 @@ function Sidebar({
                       style={{ background: 'var(--color-coral)' }}
                     />
                   )}
-                  <span className="flex-shrink-0">{icon}</span>
+                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center [&>svg]:block">{icon}</span>
                   {!collapsed && (
                     <span className="text-[13px] font-display font-500 truncate">{label}</span>
                   )}
                 </button>
               )
-            })}
-          </div>
-        ))}
+              })}
+            </div>
+          )
+        })}
       </nav>
 
     </aside>
@@ -363,7 +376,16 @@ function TopBar({ view, unread, onView, onNotif, onSignOut }: { view: View; unre
 
 // ── Content router ────────────────────────────────────────────────────────────
 
-function ViewContent({ view, onView }: { view: View; onView: (view: View) => void }) {
+function ViewContent({
+  view,
+  onView,
+  isViewEnabled,
+}: {
+  view: View
+  onView: (view: View) => void
+  isViewEnabled: (view: View) => boolean
+}) {
+  if (!isViewEnabled(view)) return <Overview />
   if (view === 'overview') return <Overview />
   if (view === 'users' || view === 'mfa' || view === 'onboarding' || view === 'offboarding' || view === 'chains') {
     return <IdentityAccess sub={view as IdentityAccessView} onSubChange={onView} />
@@ -378,15 +400,28 @@ function ViewContent({ view, onView }: { view: View; onView: (view: View) => voi
       const nextView: View = tab === 'all' ? 'requests-all' : tab === 'shift' ? 'shifts' : tab
       onView(nextView)
     }
-    return <LeaveRequests activeTab={activeTab} onTabChange={handleTabChange} />
+    const availableTabs: RequestTab[] = [
+      ...(isViewEnabled('leave') ? (['all', 'leave', 'wfh', 'promotion', 'loan'] as RequestTab[]) : []),
+      ...(isViewEnabled('shifts') ? (['shift'] as RequestTab[]) : []),
+    ]
+    return <LeaveRequests activeTab={activeTab} availableTabs={availableTabs} onTabChange={handleTabChange} />
   }
   if (view === 'notif-inapp' || view === 'notif-email' || view === 'notif-rules') {
     const activeTab: NotificationTab = view === 'notif-inapp' ? 'inapp' : view === 'notif-email' ? 'email' : 'rules'
-    return <Notifications activeTab={activeTab} onTabChange={tab => onView(`notif-${tab}` as View)} />
+    const availableTabs: NotificationTab[] = [
+      'inapp',
+      'email',
+      ...(isViewEnabled('notif-rules') ? (['rules'] as NotificationTab[]) : []),
+    ]
+    return <Notifications activeTab={activeTab} availableTabs={availableTabs} onTabChange={tab => onView(`notif-${tab}` as View)} />
   }
   if (view === 'settings-org' || view === 'settings-billing') {
     const activeSection: SettingSection = view === 'settings-org' ? 'org' : 'billing'
-    return <Settings activeSection={activeSection} onSectionChange={section => onView(`settings-${section}` as View)} />
+    const availableSections: SettingSection[] = [
+      'org',
+      ...(isViewEnabled('settings-billing') ? (['billing'] as SettingSection[]) : []),
+    ]
+    return <Settings activeSection={activeSection} availableSections={availableSections} onSectionChange={section => onView(`settings-${section}` as View)} />
   }
   return <Overview />
 }
@@ -397,8 +432,18 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
   const [view, setView] = useState<View>('overview')
   const [collapsed, setCollapsed] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const featureFlags = useFeatureFlags()
+  const isViewEnabled = useCallback(
+    (nextView: View) => isDashboardViewEnabled(nextView, featureFlags),
+    [featureFlags],
+  )
+
+  useEffect(() => {
+    if (!isViewEnabled(view)) setView('overview')
+  }, [isViewEnabled, view])
 
   const handleView = (v: View) => {
+    if (!isViewEnabled(v)) return
     setView(v)
     setMobileNavOpen(false)
   }
@@ -412,6 +457,7 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
           onToggle={() => setCollapsed(!collapsed)}
           view={view}
           onView={handleView}
+          isViewEnabled={isViewEnabled}
         />
       </div>
 
@@ -425,6 +471,7 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
               onToggle={() => setMobileNavOpen(false)}
               view={view}
               onView={handleView}
+              isViewEnabled={isViewEnabled}
             />
           </div>
         </div>
@@ -449,7 +496,7 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          <ViewContent view={view} onView={handleView} />
+          <ViewContent view={view} onView={handleView} isViewEnabled={isViewEnabled} />
         </main>
       </div>
     </div>

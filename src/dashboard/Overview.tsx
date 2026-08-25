@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MetricCard, StatusChip, Reveal } from '../components/cultr-ui'
+import { MetricCard, StatusChip, Reveal } from '../components/cultre-ui'
 import italyFlag from 'flag-icons/flags/1x1/it.svg'
 import singaporeFlag from 'flag-icons/flags/1x1/sg.svg'
 import nigeriaFlag from 'flag-icons/flags/1x1/ng.svg'
@@ -7,16 +7,19 @@ import indiaFlag from 'flag-icons/flags/1x1/in.svg'
 import southKoreaFlag from 'flag-icons/flags/1x1/kr.svg'
 
 const employees = [
-  { name: 'A. Rossi', fullName: 'Alexandra Rossi', avatar: 'AR', time: '09:02', role: 'Senior Software Engineer', location: 'Italy', countryFlag: italyFlag, dept: 'Engineering', startDate: 'July 13, 2025' },
-  { name: 'M. Chen', fullName: 'Mei Chen', avatar: 'MC', time: '08:51', role: 'Product Designer', location: 'Singapore', countryFlag: singaporeFlag, dept: 'Design', startDate: 'February 3, 2024' },
-  { name: 'J. Okoro', fullName: 'Jide Okoro', avatar: 'JO', time: '09:14', role: 'Operations Lead', location: 'Nigeria', countryFlag: nigeriaFlag, dept: 'Operations', startDate: 'November 18, 2023' },
-  { name: 'L. Singh', fullName: 'Leena Singh', avatar: 'LS', time: '08:39', role: 'Finance Analyst', location: 'India', countryFlag: indiaFlag, dept: 'Finance', startDate: 'April 8, 2024' },
-  { name: 'T. Park', fullName: 'Taehyun Park', avatar: 'TP', time: '09:27', role: 'Frontend Engineer', location: 'South Korea', countryFlag: southKoreaFlag, dept: 'Engineering', startDate: 'January 20, 2025' },
+  { name: 'A. Rossi', fullName: 'Alexandra Rossi', avatar: 'AR', time: '09:02', clockOutTime: '18:02', role: 'Senior Software Engineer', location: 'Italy', countryFlag: italyFlag, dept: 'Engineering', startDate: 'July 13, 2025' },
+  { name: 'M. Chen', fullName: 'Mei Chen', avatar: 'MC', time: '08:51', clockOutTime: '17:51', role: 'Product Designer', location: 'Singapore', countryFlag: singaporeFlag, dept: 'Design', startDate: 'February 3, 2024' },
+  { name: 'J. Okoro', fullName: 'Jide Okoro', avatar: 'JO', time: '09:14', clockOutTime: '17:14', role: 'Operations Lead', location: 'Nigeria', countryFlag: nigeriaFlag, dept: 'Operations', startDate: 'November 18, 2023' },
+  { name: 'L. Singh', fullName: 'Leena Singh', avatar: 'LS', time: '08:39', clockOutTime: '16:39', role: 'Finance Analyst', location: 'India', countryFlag: indiaFlag, dept: 'Finance', startDate: 'April 8, 2024' },
+  { name: 'T. Park', fullName: 'Taehyun Park', avatar: 'TP', time: '09:27', clockOutTime: '19:27', role: 'Frontend Engineer', location: 'South Korea', countryFlag: southKoreaFlag, dept: 'Engineering', startDate: 'January 20, 2025' },
 ]
 
 type Employee = (typeof employees)[number]
 
-function EmployeeHoverCard({ employee, id }: { employee: Employee; id: string }) {
+function EmployeeHoverCard({ employee, id, activity = 'in' }: { employee: Employee; id: string; activity?: 'in' | 'out' }) {
+  const activityTime = activity === 'in' ? employee.time : employee.clockOutTime
+  const activityLabel = activity === 'in' ? 'Clocked in' : 'Clocked out'
+
   return (
     <div
       id={id}
@@ -39,7 +42,7 @@ function EmployeeHoverCard({ employee, id }: { employee: Employee; id: string })
         </div>
         <div
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--color-sage)/20 text-(--color-sage-dim)"
-          aria-label="Clocked in"
+          aria-label={activityLabel}
         >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="9" />
@@ -74,7 +77,7 @@ function EmployeeHoverCard({ employee, id }: { employee: Employee; id: string })
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M3 8.5l3 3 7-7" />
         </svg>
-        Clocked in today at {employee.time}
+        {activityLabel} today at {activityTime}
       </div>
     </div>
   )
@@ -159,6 +162,59 @@ export default function Overview() {
                         {e.avatar}
                       </div>
                       <span className="font-mono text-[11px] text-(--color-sage-dim)">{e.name} <span className="text-(--color-ink)">{e.time}</span></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Clock-out timeline */}
+          <Reveal delay={100} className="relative z-10">
+            <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-display font-600 text-[16px] text-(--color-ink)">Today's clock-out activity</h3>
+                <span className="font-mono text-[11px] text-(--color-sage-dim) uppercase tracking-widest">
+                  {new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+                </span>
+              </div>
+              {/* Timeline */}
+              <div className="relative">
+                <div className="flex justify-between font-mono text-[10px] text-(--color-sage-dim) mb-3">
+                  {['16:00', '17:00', '18:00', '19:00', '20:00'].map(t => <span key={t}>{t}</span>)}
+                </div>
+                <div className="relative h-12 rounded-[4px] mb-4" style={{ background: 'rgba(11,20,38,0.04)' }}>
+                  {employees.map((e, i) => {
+                    const [h, m] = e.clockOutTime.split(':').map(Number)
+                    const pct = ((h - 16) * 60 + m) / 240 * 100
+                    return (
+                      <div
+                        key={e.name}
+                        className="group absolute top-1/2 -translate-x-1/2 -translate-y-1/2 hover:z-40 focus-within:z-40"
+                        style={{ left: `${pct}%` }}
+                      >
+                        <button
+                          type="button"
+                          className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full font-mono text-[10px] font-500 transition-transform duration-150 hover:scale-110 focus-visible:scale-110"
+                          style={{ background: 'var(--color-navy)', color: 'var(--color-sage)', border: '1px solid var(--color-line-dark)' }}
+                          aria-label={`${e.fullName} clocked out at ${e.clockOutTime}. Show employee details.`}
+                          aria-describedby={`clock-out-employee-card-${i}`}
+                        >
+                          {e.avatar}
+                        </button>
+                        <EmployeeHoverCard employee={e} id={`clock-out-employee-card-${i}`} activity="out" />
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {employees.map(e => (
+                    <div key={e.name} className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-mono"
+                        style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}>
+                        {e.avatar}
+                      </div>
+                      <span className="font-mono text-[11px] text-(--color-sage-dim)">{e.name} <span className="text-(--color-ink)">{e.clockOutTime}</span></span>
                     </div>
                   ))}
                 </div>

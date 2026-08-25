@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Input } from '../components/cultr-ui'
+import { Button, Input } from '../components/cultre-ui'
 
 export default function SignIn({ onSignIn, onSignUp }: { onSignIn: () => void; onSignUp: () => void }) {
   const [email, setEmail] = useState('')
@@ -23,8 +23,8 @@ export default function SignIn({ onSignIn, onSignUp }: { onSignIn: () => void; o
           onClick={onSignUp}
           className="flex items-center gap-2 font-display font-700 text-[16px] text-(--color-ink) tracking-tight hover:text-(--color-coral) transition-colors"
         >
-          <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
-          Cultr HR
+          <img src="/cultre-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
+          Cultre
         </button>
       </div>
 
@@ -38,7 +38,7 @@ export default function SignIn({ onSignIn, onSignUp }: { onSignIn: () => void; o
         }}
       >
         <h1 className="font-display font-700 text-[28px] text-(--color-ink) leading-tight tracking-tight">
-          Sign in to Cultr HR
+          Sign in to Cultre
         </h1>
         <p className="mt-2 text-[14px] text-(--color-sage-dim)">
           Welcome back. Enter your details to continue.
@@ -145,7 +145,7 @@ export default function SignIn({ onSignIn, onSignUp }: { onSignIn: () => void; o
       </p>
 
       <p className="mt-4 text-[14px] text-(--color-sage-dim)">
-        New to Cultr HR?{' '}
+        New to Cultre?{' '}
         <button onClick={onSignUp} className="text-(--color-coral) hover:underline underline-offset-2">
           Create an account
         </button>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Button, Reveal } from '../components/cultr-ui'
+import { Button, Reveal } from '../components/cultre-ui'
 
 // ── Nav ───────────────────────────────────────────────────────────────────────
 
@@ -28,9 +28,9 @@ function Nav({ onSignIn, onSignUp }: { onSignIn: () => void; onSignUp: () => voi
         borderBottom: scrolled ? '1px solid var(--color-line-dark)' : '1px solid transparent',
       }}
     >
-      <a href="#product" className="flex items-center gap-2" aria-label="Cultr HR home">
-        <img src="/cultr-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
-        <span className="font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight">Cultr</span>
+      <a href="#product" className="flex items-center gap-2" aria-label="Cultre HR home">
+        <img src="/cultre-favicon.png" alt="" className="h-8 w-8 shrink-0 rounded-[6px] object-cover" />
+        <span className="font-display font-700 text-[18px] text-(--color-offwhite) tracking-tight">Cultre</span>
         <span
           className="w-1.5 h-1.5 rounded-full bg-(--color-coral) animate-pulse-status"
           title="System status: operational"
@@ -80,7 +80,7 @@ function ConsolePanel() {
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-coral)/60" />
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-sage)/40" />
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-sage-dim)/30" />
-        <span className="ml-3 font-mono text-[10px] text-(--color-sage-dim) uppercase tracking-widest">Cultr HR · Live</span>
+        <span className="ml-3 font-mono text-[10px] text-(--color-sage-dim) uppercase tracking-widest">Cultre HR · Live</span>
       </div>
 
       {/* Org chart */}
@@ -90,8 +90,8 @@ function ConsolePanel() {
           <rect x="10" y="28" width="72" height="24" rx="4" fill="none" stroke="var(--color-sage)" strokeWidth="1" />
           <text x="46" y="44" textAnchor="middle" fill="var(--color-sage)" fontFamily="JetBrains Mono" fontSize="9">ONBOARDING</text>
 
-          <rect x="124" y="28" width="72" height="24" rx="4" fill="none" stroke="var(--color-sage)" strokeWidth="1" />
-          <text x="160" y="44" textAnchor="middle" fill="var(--color-sage)" fontFamily="JetBrains Mono" fontSize="9">APPROVAL</text>
+          <rect x="124" y="28" width="72" height="24" rx="4" fill="none" stroke="var(--color-accent)" strokeWidth="1" />
+          <text x="160" y="44" textAnchor="middle" fill="var(--color-accent)" fontFamily="JetBrains Mono" fontSize="9">APPROVAL</text>
 
           <rect x="238" y="28" width="72" height="24" rx="4"
             fill="rgba(239,120,104,0.12)"
@@ -216,7 +216,7 @@ function Hero({ onSignUp }: { onSignUp: () => void }) {
             className="mt-6 text-[17px] leading-[1.6] animate-fade-in"
             style={{ color: 'rgba(243,239,230,0.7)', animationDelay: '160ms' }}
           >
-            Cultr HR replaces scattered spreadsheets, email chains, and disconnected tools with one precise system for identity, time, and approvals — built for teams that take operations seriously.
+            Cultre HR replaces scattered spreadsheets, email chains, and disconnected tools with one precise system for identity, time, and approvals — built for teams that take operations seriously.
           </p>
 
           <div
@@ -374,12 +374,12 @@ function ModuleIdentity() {
             Identity, verified once, trusted everywhere
           </h3>
           <p className="mt-4 text-[16px] leading-[1.6]" style={{ color: 'rgba(243,239,230,0.65)' }}>
-            MFA enforcement, password policy management, and dynamic approval chains — unified identity infrastructure that travels with each person across every system they touch.
+            MFA enforcement, password policy management, and dynamic approval chains unified identity infrastructure that travels with each person across every system they touch. Integrate with your existing SSO provider in minutes, enforce org-wide or per-group MFA policies, and maintain a full tamper-proof audit trail of every access event, configuration change, and approval decision.
           </p>
         </div>
         {/* Architecture diagram */}
         <div
-          className="mt-6 flex min-h-[180px] flex-1 flex-col justify-between rounded-[10px] border border-(--color-line-dark) p-5 md:p-6"
+          className="mt-[60px] flex min-h-[180px] flex-col justify-between rounded-[10px] border border-(--color-line-dark) p-5 md:p-6"
           style={{ background: 'rgba(158,173,156,0.045)' }}
         >
           <div className="flex items-center justify-between gap-4 border-b border-(--color-line-dark) pb-4">
@@ -392,12 +392,12 @@ function ModuleIdentity() {
           <div className="flex flex-wrap gap-2 mt-6">
             {['MFA', 'SSO-Ready', 'Audit Log', 'Dynamic Approvals'].map(t => <ModuleTag key={t}>{t}</ModuleTag>)}
           </div>
-          <svg viewBox="0 34 320 52" className="mt-5 w-full" aria-label="Identity access flow diagram">
+          <svg viewBox="0 34 400 52" className="mt-5 w-full" aria-label="Identity access flow diagram">
             {[
-              { x: 10, label: 'USER' },
-              { x: 90, label: 'MFA CHECK' },
-              { x: 180, label: 'ROLE SCOPE' },
-              { x: 260, label: 'ACCESS\nGRANTED' },
+              { x: 5,   label: 'USER' },
+              { x: 115, label: 'MFA CHECK' },
+              { x: 225, label: 'ROLE SCOPE' },
+              { x: 335, label: 'ACCESS\nGRANTED' },
             ].map(({ x, label }, i) => (
               <g key={label}>
                 <rect x={x} y="44" width="60" height="32" rx="4"
@@ -408,11 +408,42 @@ function ModuleIdentity() {
                   fontFamily="JetBrains Mono" fontSize="7">{label.split('\n')[0]}</text>
                 {label.split('\n')[1] && <text x={x + 30} y={69} textAnchor="middle" fill={i === 3 ? 'var(--color-coral)' : 'var(--color-sage)'}
                   fontFamily="JetBrains Mono" fontSize="7">{label.split('\n')[1]}</text>}
-                {i < 3 && <path d={`M${x + 60} 60 L${x + 90} 60`} stroke="var(--color-sage)" strokeWidth="0.75"
+                {i < 3 && <path d={`M${x + 60} 60 L${x + 110} 60`} stroke="var(--color-sage)" strokeWidth="0.75"
                   strokeDasharray="3 2" fill="none" />}
               </g>
             ))}
           </svg>
+
+          {/* Live metrics row */}
+          <div
+            className="mt-5 pt-4 grid grid-cols-3"
+            style={{ borderTop: '1px solid var(--color-line-dark)' }}
+          >
+            {[
+              { label: 'Users enforced', value: '128 / 128', color: 'var(--color-sage)' },
+              { label: 'Active sessions', value: '47 live', color: 'var(--color-sage)' },
+              { label: 'Last audit', value: '2 min ago', color: 'var(--color-coral)' },
+            ].map(({ label, value, color }, i) => (
+              <div
+                key={label}
+                className="flex flex-col gap-1 px-3 first:pl-0"
+                style={{ borderLeft: i > 0 ? '1px solid var(--color-line-dark)' : undefined }}
+              >
+                <span
+                  className="font-mono text-[9px] uppercase tracking-widest"
+                  style={{ color: 'var(--color-sage-dim)' }}
+                >
+                  {label}
+                </span>
+                <span
+                  className="font-mono text-[13px] font-semibold"
+                  style={{ color }}
+                >
+                  {value}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </Reveal>
@@ -609,11 +640,10 @@ function ModuleLeave() {
                 <span className="font-mono text-[11px] text-(--color-offwhite)/50 mr-2">{r.name}</span>
                 <span className="text-[13px] text-(--color-offwhite)/80">{r.type}</span>
               </div>
-              <span className={`font-mono text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
-                r.variant === 'success' ? 'text-(--color-sage)' :
+              <span className={`font-mono text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full ${r.variant === 'success' ? 'text-(--color-sage)' :
                 r.variant === 'pending' ? 'text-(--color-coral)' :
-                'text-(--color-sage-dim)'
-              }`}
+                  'text-(--color-sage-dim)'
+                }`}
                 style={{ border: '1px solid', borderColor: r.variant === 'success' ? 'rgba(158,173,156,0.4)' : r.variant === 'pending' ? 'rgba(239,120,104,0.4)' : 'var(--color-line-dark)' }}>
                 {r.status}
               </span>
@@ -705,7 +735,7 @@ function HowItWorks() {
         </Reveal>
         <div className="mt-16 grid md:grid-cols-3 gap-0 relative">
           {/* Connecting line */}
-          <div className="hidden md:block absolute top-5 left-[16.67%] right-[16.67%] h-[1px]"
+          <div className="hidden md:block absolute top-5 left-[0%] right-[16.67%] h-[1.5px]"
             style={{ background: 'var(--color-line-light)' }} />
           {steps.map(({ n, title, body }, i) => (
             <Reveal key={n} delay={i * 100}>
@@ -829,7 +859,7 @@ function Footer() {
       <div className="max-w-[1280px] mx-auto px-8 md:px-12 py-16">
         <div className="grid md:grid-cols-4 gap-12">
           <div>
-            <span className="font-display font-700 text-[18px] text-(--color-offwhite)">Cultr HR</span>
+            <span className="font-display font-700 text-[18px] text-(--color-offwhite)">Cultre HR</span>
             <p className="mt-3 text-[14px] leading-[1.6]" style={{ color: 'rgba(243,239,230,0.45)' }}>
               People operations infrastructure for serious teams.
             </p>
@@ -855,7 +885,7 @@ function Footer() {
         <div className="mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
           style={{ borderTop: '1px solid var(--color-line-dark)' }}>
           <span className="font-mono text-[11px] text-(--color-sage-dim)">
-            © 2026 Cultr HR, Inc.
+            © 2026 Cultre HR, Inc.
           </span>
           <span className="font-mono text-[11px] flex items-center gap-2" style={{ color: 'rgba(158,173,156,0.6)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-(--color-sage) animate-pulse-status" />
