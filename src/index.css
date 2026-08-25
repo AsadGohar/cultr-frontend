@@ -8,55 +8,29 @@
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Ground — two warm beiges create card depth without pure white */
+  --color-navy: #0B1426;
+  --color-navy-raised: #101B31;
+  --color-sage: #9EAD9C;
+  --color-sage-dim: #7C8A79;
+  --color-coral: #EF7868;
+  --color-coral-deep: #D9614F;
   --color-offwhite: #F3EFE6;
-  --color-offwhite-raised: #F3ECE6;
-
-  /* Dark anchor — sidebar and dark panels */
-  --color-navy: #1A1A2E;
-  --color-navy-raised: #22223A;
-
-  /* Brand primary — orange, unexpected for HRMS, warm and energetic */
-  --color-coral: #FA8F54;
-  --color-coral-deep: #FA6554;
-
-  /* Semantic warm-to-hot axis */
-  --color-amber: #FAB854;
-
-  /* Semantic cool axis */
-  --color-sage: #7FD1AE;
-  --color-sage-alt: #91D17F;
-  /* sage-dim stays as the muted label/secondary text token — warm dark tan derived from the palette */
-  --color-sage-dim: #9A8B74;
-  --color-blue: #7FA3D1;
-
-  /* Warm neutral — tan for borders, decorative accents, structural lines */
-  --color-tan: #DAC9A2;
-
-  /* Text */
-  --color-ink: #1C1917;
-  --color-accent: #e4e986;
+  --color-offwhite-raised: #FAF7F0;
+  --color-ink: #14181F;
 }
 
 :root {
+  --color-navy: #0B1426;
+  --color-navy-raised: #101B31;
+  --color-sage: #9EAD9C;
+  --color-sage-dim: #7C8A79;
+  --color-coral: #EF7868;
+  --color-coral-deep: #D9614F;
   --color-offwhite: #F3EFE6;
-  --color-offwhite-raised: #F3ECE6;
-  --color-navy: #1A1A2E;
-  --color-navy-raised: #22223A;
-  --color-coral: #FA8F54;
-  --color-coral-deep: #FA6554;
-  --color-amber: #FAB854;
-  --color-sage: #7FD1AE;
-  --color-sage-alt: #91D17F;
-  --color-sage-dim: #9A8B74;
-  --color-blue: #7FA3D1;
-  --color-tan: #DAC9A2;
-  --color-ink: #1C1917;
-  --color-accent: #e4e986;
-  /* All structural lines use warm tan instead of cool gray — unifies the palette */
-  --color-line-light: rgba(218, 201, 162, 0.38);
-  --color-line-dark: rgba(218, 201, 162, 0.6);
-
+  --color-offwhite-raised: #FAF7F0;
+  --color-ink: #14181F;
+  --color-line-dark: rgba(158, 173, 156, 0.25);
+  --color-line-light: rgba(11, 20, 38, 0.12);
   --ease-std: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -86,7 +60,7 @@ body {
 ::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
 *:hover::-webkit-scrollbar-thumb { background: var(--color-line-dark); }
 
-/* Focus ring uses brand orange */
+/* Focus ring */
 :focus-visible {
   outline: 2px solid var(--color-coral);
   outline-offset: 2px;

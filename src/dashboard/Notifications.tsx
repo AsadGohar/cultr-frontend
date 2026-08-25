@@ -1,50 +1,148 @@
-import { useState } from 'react'
-import { StatusChip, Toggle, Reveal } from '../components/cultre-ui'
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Reveal,
+  StatusChip,
+  Textarea,
+  Toggle,
+} from "../components/cultre-ui";
 
-export type NotificationTab = 'inapp' | 'email' | 'rules'
-type Tab = NotificationTab
+export type NotificationTab = "inapp" | "email" | "rules";
+type Tab = NotificationTab;
 
 const inAppNotifs = [
-  { id: 0, unread: true, text: 'Leave request from M. Chen requires your approval.', time: 'Just now', type: 'action' },
-  { id: 1, unread: true, text: 'Overtime alert: T. Park exceeded 9h threshold.', time: '14m ago', type: 'alert' },
-  { id: 2, unread: false, text: 'A. Rossi completed onboarding checklist.', time: '1h ago', type: 'success' },
-  { id: 3, unread: false, text: 'MFA enforcement activated for Engineering team.', time: '3h ago', type: 'info' },
-  { id: 4, unread: false, text: 'Shift swap proposal from R. Torres is pending review.', time: 'Yesterday', type: 'action' },
-]
+  {
+    id: 0,
+    unread: true,
+    text: "Leave request from M. Chen requires your approval.",
+    time: "Just now",
+    type: "action",
+  },
+  {
+    id: 1,
+    unread: true,
+    text: "Overtime alert: T. Park exceeded 9h threshold.",
+    time: "14m ago",
+    type: "alert",
+  },
+  {
+    id: 2,
+    unread: false,
+    text: "A. Rossi completed onboarding checklist.",
+    time: "1h ago",
+    type: "success",
+  },
+  {
+    id: 3,
+    unread: false,
+    text: "MFA enforcement activated for Engineering team.",
+    time: "3h ago",
+    type: "info",
+  },
+  {
+    id: 4,
+    unread: false,
+    text: "Shift swap proposal from R. Torres is pending review.",
+    time: "Yesterday",
+    type: "action",
+  },
+];
 
 const emailLog = [
-  { recipient: 'M. Chen', subject: 'Your leave request was received', sent: 'Aug 6, 09:42', status: 'delivered' },
-  { recipient: 'T. Park', subject: 'Overtime threshold alert', sent: 'Aug 6, 08:32', status: 'delivered' },
-  { recipient: 'A. Rossi', subject: 'Onboarding checklist complete', sent: 'Aug 6, 07:58', status: 'delivered' },
-  { recipient: 'L. Singh', subject: 'Salary advance request update', sent: 'Aug 5, 16:12', status: 'bounced' },
-]
+  {
+    recipient: "M. Chen",
+    subject: "Your leave request was received",
+    sent: "Aug 6, 09:42",
+    status: "delivered",
+  },
+  {
+    recipient: "T. Park",
+    subject: "Overtime threshold alert",
+    sent: "Aug 6, 08:32",
+    status: "delivered",
+  },
+  {
+    recipient: "A. Rossi",
+    subject: "Onboarding checklist complete",
+    sent: "Aug 6, 07:58",
+    status: "delivered",
+  },
+  {
+    recipient: "L. Singh",
+    subject: "Salary advance request update",
+    sent: "Aug 5, 16:12",
+    status: "bounced",
+  },
+];
 
-type Rule = { id: number; event: string; role: string; channel: string; active: boolean }
+type Rule =
+  | {
+      id: number;
+      event: string;
+      role: string;
+      channel: string;
+      active: boolean;
+    }
+  | { id: number; condition: string; action: string; active: boolean };
 const initialRules: Rule[] = [
-  { id: 0, event: 'Leave request submitted', role: 'Manager', channel: 'In-App + Email', active: true },
-  { id: 1, event: 'Overtime threshold breached', role: 'HR Lead', channel: 'Email', active: true },
-  { id: 2, event: 'Onboarding stage completed', role: 'HR Lead', channel: 'In-App', active: false },
-  { id: 3, event: 'MFA disabled for a user', role: 'Admin', channel: 'Email', active: true },
-]
+  {
+    id: 0,
+    event: "Leave request submitted",
+    role: "Manager",
+    channel: "In-App + Email",
+    active: true,
+  },
+  {
+    id: 1,
+    event: "Overtime threshold breached",
+    role: "HR Lead",
+    channel: "Email",
+    active: true,
+  },
+  {
+    id: 2,
+    event: "Onboarding stage completed",
+    role: "HR Lead",
+    channel: "In-App",
+    active: false,
+  },
+  {
+    id: 3,
+    event: "MFA disabled for a user",
+    role: "Admin",
+    channel: "Email",
+    active: true,
+  },
+];
 
 function InAppTab() {
-  const [notifs, setNotifs] = useState(inAppNotifs)
+  const [notifs, setNotifs] = useState(inAppNotifs);
 
-  const markRead = (id: number) => setNotifs(n => n.map(x => x.id === id ? { ...x, unread: false } : x))
+  const markRead = (id: number) =>
+    setNotifs(n => n.map(x => (x.id === id ? { ...x, unread: false } : x)));
 
-  const byDay: Record<string, typeof inAppNotifs> = {}
+  const byDay: Record<string, typeof inAppNotifs> = {};
   notifs.forEach(n => {
-    const key = n.time === 'Just now' || n.time.endsWith('ago') ? 'Today' : n.time
-    ;(byDay[key] = byDay[key] || []).push(n)
-  })
+    const key =
+      n.time === "Just now" || n.time.endsWith("ago") ? "Today" : n.time;
+    (byDay[key] = byDay[key] || []).push(n);
+  });
 
   return (
     <Reveal>
       <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
         {Object.entries(byDay).map(([day, items]) => (
           <div key={day}>
-            <div className="px-6 py-3" style={{ background: 'var(--color-offwhite)', borderBottom: '1px solid var(--color-line-light)' }}>
-              <span className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">{day}</span>
+            <div
+              className="px-6 py-3"
+              style={{
+                background: "var(--color-offwhite)",
+                borderBottom: "1px solid var(--color-line-light)",
+              }}
+            >
+              <span className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
+                {day}
+              </span>
             </div>
             {items.map((n, i) => (
               <button
@@ -52,22 +150,50 @@ function InAppTab() {
                 onClick={() => markRead(n.id)}
                 className="w-full flex items-start gap-4 px-6 py-4 text-left transition-colors"
                 style={{
-                  borderTop: i > 0 ? '1px solid var(--color-line-light)' : undefined,
-                  background: n.unread ? 'rgba(239,120,104,0.04)' : '',
+                  borderTop:
+                    i > 0 ? "1px solid var(--color-line-light)" : undefined,
+                  background: n.unread ? "rgba(239,120,104,0.04)" : "",
                 }}
-                onMouseEnter={e => { if (!n.unread) e.currentTarget.style.background = 'var(--color-offwhite)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = n.unread ? 'rgba(239,120,104,0.04)' : '' }}
+                onMouseEnter={e => {
+                  if (!n.unread)
+                    e.currentTarget.style.background = "var(--color-offwhite)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = n.unread
+                    ? "rgba(239,120,104,0.04)"
+                    : "";
+                }}
               >
                 <div className="mt-1.5 shrink-0">
-                  {n.unread
-                    ? <span className="w-2 h-2 rounded-full block" style={{ background: 'var(--color-coral)' }} aria-label="Unread" />
-                    : <span className="w-2 h-2 rounded-full block" style={{ background: 'var(--color-line-light)' }} aria-hidden="true" />}
+                  {n.unread ? (
+                    <span
+                      className="w-2 h-2 rounded-full block"
+                      style={{ background: "var(--color-coral)" }}
+                      aria-label="Unread"
+                    />
+                  ) : (
+                    <span
+                      className="w-2 h-2 rounded-full block"
+                      style={{ background: "var(--color-line-light)" }}
+                      aria-hidden="true"
+                    />
+                  )}
                 </div>
                 <div className="flex-1">
                   <p className="text-[14px] text-(--color-ink)">{n.text}</p>
-                  <span className="font-mono text-[11px] text-(--color-sage-dim) mt-1 block">{n.time}</span>
+                  <span className="font-mono text-[11px] text-(--color-sage-dim) mt-1 block">
+                    {n.time}
+                  </span>
                 </div>
-                <StatusChip variant={n.type === 'alert' ? 'alert' : n.type === 'success' ? 'success' : 'neutral'}>
+                <StatusChip
+                  variant={
+                    n.type === "alert"
+                      ? "alert"
+                      : n.type === "success"
+                        ? "success"
+                        : "neutral"
+                  }
+                >
                   {n.type}
                 </StatusChip>
               </button>
@@ -76,7 +202,7 @@ function InAppTab() {
         ))}
       </div>
     </Reveal>
-  )
+  );
 }
 
 function EmailTab() {
@@ -85,23 +211,41 @@ function EmailTab() {
       <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--color-line-light)' }}>
-              {['Recipient', 'Subject', 'Sent', 'Delivery'].map(h => (
-                <th key={h} className="px-6 py-3.5 text-left font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">{h}</th>
+            <tr style={{ borderBottom: "1px solid var(--color-line-light)" }}>
+              {["Recipient", "Subject", "Sent", "Delivery"].map(h => (
+                <th
+                  key={h}
+                  className="px-6 py-3.5 text-left font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)"
+                >
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {emailLog.map((e, i) => (
-              <tr key={i} style={{ borderTop: '1px solid var(--color-line-light)' }}
+              <tr
+                key={i}
+                style={{ borderTop: "1px solid var(--color-line-light)" }}
                 className="transition-colors"
-                onMouseEnter={ev => (ev.currentTarget.style.background = 'var(--color-offwhite)')}
-                onMouseLeave={ev => (ev.currentTarget.style.background = '')}>
-                <td className="px-6 py-4 font-mono text-[12px] text-(--color-ink)">{e.recipient}</td>
-                <td className="px-6 py-4 text-[14px] text-(--color-ink)">{e.subject}</td>
-                <td className="px-6 py-4 font-mono text-[12px] text-(--color-sage-dim)">{e.sent}</td>
+                onMouseEnter={ev =>
+                  (ev.currentTarget.style.background = "var(--color-offwhite)")
+                }
+                onMouseLeave={ev => (ev.currentTarget.style.background = "")}
+              >
+                <td className="px-6 py-4 font-mono text-[12px] text-(--color-ink)">
+                  {e.recipient}
+                </td>
+                <td className="px-6 py-4 text-[14px] text-(--color-ink)">
+                  {e.subject}
+                </td>
+                <td className="px-6 py-4 font-mono text-[12px] text-(--color-sage-dim)">
+                  {e.sent}
+                </td>
                 <td className="px-6 py-4">
-                  <StatusChip variant={e.status === 'delivered' ? 'success' : 'alert'}>
+                  <StatusChip
+                    variant={e.status === "delivered" ? "success" : "alert"}
+                  >
                     {e.status}
                   </StatusChip>
                 </td>
@@ -111,49 +255,124 @@ function EmailTab() {
         </table>
       </div>
     </Reveal>
-  )
+  );
 }
 
 function RulesTab() {
-  const [rules, setRules] = useState(initialRules)
+  const [rules, setRules] = useState<Rule[]>(initialRules);
+  const [isAddingRule, setIsAddingRule] = useState(false);
+  const [condition, setCondition] = useState("");
+  const [action, setAction] = useState("");
 
-  const toggle = (id: number) => setRules(r => r.map(x => x.id === id ? { ...x, active: !x.active } : x))
-  const remove = (id: number) => setRules(r => r.filter(x => x.id !== id))
+  useEffect(() => {
+    if (!isAddingRule) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsAddingRule(false);
+        setCondition("");
+        setAction("");
+      }
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [isAddingRule]);
+
+  const toggle = (id: number) =>
+    setRules(r => r.map(x => (x.id === id ? { ...x, active: !x.active } : x)));
+  const remove = (id: number) => setRules(r => r.filter(x => x.id !== id));
+  const closeAddRule = () => {
+    setIsAddingRule(false);
+    setCondition("");
+    setAction("");
+  };
+  const addRule = () => {
+    const trimmedCondition = condition.trim();
+    const trimmedAction = action.trim();
+    if (!trimmedCondition || !trimmedAction) return;
+
+    setRules(current => [
+      ...current,
+      {
+        id: Math.max(-1, ...current.map(rule => rule.id)) + 1,
+        condition: trimmedCondition,
+        action: trimmedAction,
+        active: true,
+      },
+    ]);
+    closeAddRule();
+  };
 
   return (
     <div className="flex flex-col gap-4">
       <Reveal>
         <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
-          <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
+          <div
+            className="px-6 py-4"
+            style={{ borderBottom: "1px solid var(--color-line-light)" }}
+          >
             <p className="text-[13px] text-(--color-sage-dim)">
-              Rules fire automatically when conditions are met. Toggle to enable or disable.
+              Rules fire automatically when conditions are met. Toggle to enable
+              or disable.
             </p>
           </div>
           {rules.map((rule, i) => (
-            <div key={rule.id} className="flex items-center gap-5 px-6 py-4"
-              style={{ borderTop: i > 0 ? '1px solid var(--color-line-light)' : undefined }}>
+            <div
+              key={rule.id}
+              className="flex items-center gap-5 px-6 py-4"
+              style={{
+                borderTop:
+                  i > 0 ? "1px solid var(--color-line-light)" : undefined,
+              }}
+            >
               <Toggle checked={rule.active} onChange={() => toggle(rule.id)} />
               <div className="flex-1">
                 <p className="text-[14px] text-(--color-ink)">
-                  When <strong>{rule.event}</strong> occurs →{' '}
-                  notify <strong>{rule.role}</strong> via{' '}
-                  <strong>{rule.channel}</strong>
+                  {"condition" in rule ? (
+                    <>
+                      When <strong>{rule.condition}</strong> occurs →{" "}
+                      <strong>{rule.action}</strong>
+                    </>
+                  ) : (
+                    <>
+                      When <strong>{rule.event}</strong> occurs → notify{" "}
+                      <strong>{rule.role}</strong> via{" "}
+                      <strong>{rule.channel}</strong>
+                    </>
+                  )}
                 </p>
               </div>
               <div className="flex gap-2">
                 <button className="font-mono text-[11px] text-(--color-sage-dim) hover:text-(--color-ink) transition-colors uppercase tracking-widest">
                   Edit
                 </button>
-                <button onClick={() => remove(rule.id)}
-                  className="font-mono text-[11px] text-(--color-coral) hover:underline uppercase tracking-widest">
+                <button
+                  onClick={() => remove(rule.id)}
+                  className="font-mono text-[11px] text-(--color-coral) hover:underline uppercase tracking-widest"
+                >
                   Remove
                 </button>
               </div>
             </div>
           ))}
-          <div className="px-6 py-4" style={{ borderTop: '1px solid var(--color-line-light)' }}>
-            <button className="font-mono text-[12px] text-(--color-coral) uppercase tracking-widest hover:underline flex items-center gap-2">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <div
+            className="px-6 py-4"
+            style={{ borderTop: "1px solid var(--color-line-light)" }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsAddingRule(true)}
+              className="flex cursor-pointer items-center gap-2 font-mono text-[12px] uppercase tracking-widest text-(--color-coral) hover:underline"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
                 <path d="M6 1v10M1 6h10" />
               </svg>
               Add rule
@@ -161,40 +380,154 @@ function RulesTab() {
           </div>
         </div>
       </Reveal>
+      {isAddingRule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={closeAddRule}
+            aria-label="Close add rule dialog"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-rule-title"
+            className="relative z-10 w-full max-w-[520px] rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-(--color-line-light) px-6 py-5">
+              <div>
+                <h2
+                  id="add-rule-title"
+                  className="font-display text-xl font-700 text-(--color-ink)"
+                >
+                  Add automated rule
+                </h2>
+                <p className="mt-1 text-[13px] text-(--color-sage-dim)">
+                  Define what triggers the rule and what should happen next.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeAddRule}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
+                aria-label="Close dialog"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden="true"
+                >
+                  <path d="M12 4L4 12M4 4l8 8" />
+                </svg>
+              </button>
+            </div>
+            <form
+              className="flex flex-col gap-6 px-6 py-6"
+              onSubmit={event => {
+                event.preventDefault();
+                addRule();
+              }}
+            >
+              <Textarea
+                autoFocus
+                label="Condition"
+                value={condition}
+                onChange={event => setCondition(event.target.value)}
+                placeholder="e.g. An employee has three consecutive absences"
+                hint="Describe when this rule should run."
+                rows={3}
+              />
+              <Textarea
+                label="Action"
+                value={action}
+                onChange={event => setAction(event.target.value)}
+                placeholder="e.g. Notify HR via email"
+                hint="Describe what should happen when the condition is met."
+                rows={3}
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={closeAddRule}
+                  className="rounded-[6px] px-5 py-3 font-display text-[14px] font-600 text-(--color-sage-dim) transition-colors hover:text-(--color-ink)"
+                >
+                  Cancel
+                </button>
+                <Button
+                  type="submit"
+                  disabled={!condition.trim() || !action.trim()}
+                  className="bg-(--color-coral) hover:bg-(--color-coral) disabled:opacity-100"
+                >
+                  Save
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
 const tabs: { id: Tab; label: string }[] = [
-  { id: 'inapp', label: 'In-App' },
-  { id: 'email', label: 'Email' },
-  { id: 'rules', label: 'Automated Rules' },
-]
+  { id: "inapp", label: "In-App" },
+  { id: "email", label: "Email" },
+  { id: "rules", label: "Automated Rules" },
+];
 
-export default function Notifications({ activeTab, availableTabs = tabs.map(tab => tab.id), onTabChange }: { activeTab?: NotificationTab; availableTabs?: NotificationTab[]; onTabChange?: (tab: NotificationTab) => void }) {
-  const [internalActive, setInternalActive] = useState<NotificationTab>('inapp')
-  const active = activeTab ?? internalActive
+export default function Notifications({
+  activeTab,
+  availableTabs = tabs.map(tab => tab.id),
+  onTabChange,
+}: {
+  activeTab?: NotificationTab;
+  availableTabs?: NotificationTab[];
+  onTabChange?: (tab: NotificationTab) => void;
+}) {
+  const [internalActive, setInternalActive] =
+    useState<NotificationTab>("inapp");
+  const active = activeTab ?? internalActive;
 
   const selectTab = (next: NotificationTab) => {
-    setInternalActive(next)
-    onTabChange?.(next)
-  }
+    setInternalActive(next);
+    onTabChange?.(next);
+  };
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex gap-1 overflow-x-auto pb-1" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
-        {tabs.filter(({ id }) => availableTabs.includes(id)).map(({ id, label }) => (
-          <button key={id} onClick={() => selectTab(id)}
-            className="px-4 py-2.5 font-display font-500 text-[14px] whitespace-nowrap transition-colors relative shrink-0 cursor-pointer rounded-t-[5px] hover:bg-(--color-navy)/5"
-            style={{ color: active === id ? 'var(--color-ink)' : 'var(--color-sage-dim)' }}>
-            {label}
-            {active === id && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full" style={{ background: 'var(--color-coral)' }} />}
-          </button>
-        ))}
+      <div
+        className="flex gap-1 overflow-x-auto pb-1"
+        style={{ borderBottom: "1px solid var(--color-line-light)" }}
+      >
+        {tabs
+          .filter(({ id }) => availableTabs.includes(id))
+          .map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => selectTab(id)}
+              className="px-4 py-2.5 font-display font-500 text-[14px] whitespace-nowrap transition-colors relative shrink-0 cursor-pointer rounded-t-[5px] hover:bg-(--color-navy)/5"
+              style={{
+                color:
+                  active === id ? "var(--color-ink)" : "var(--color-sage-dim)",
+              }}
+            >
+              {label}
+              {active === id && (
+                <span
+                  className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full"
+                  style={{ background: "var(--color-coral)" }}
+                />
+              )}
+            </button>
+          ))}
       </div>
-      {active === 'inapp' && <InAppTab />}
-      {active === 'email' && <EmailTab />}
-      {active === 'rules' && <RulesTab />}
+      {active === "inapp" && <InAppTab />}
+      {active === "email" && <EmailTab />}
+      {active === "rules" && <RulesTab />}
     </div>
-  )
+  );
 }

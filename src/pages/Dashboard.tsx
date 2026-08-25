@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import Overview from '../dashboard/Overview'
 import IdentityAccess, { type IdentityAccessView } from '../dashboard/IdentityAccess'
 import Permissions from '../dashboard/Permissions'
+import Policies from '../dashboard/Policies'
 import TimeAttendance, { type TimeAttendanceView } from '../dashboard/TimeAttendance'
 import LeaveRequests, { type RequestTab } from '../dashboard/LeaveRequests'
 import Notifications, { type NotificationTab } from '../dashboard/Notifications'
@@ -15,7 +16,7 @@ import { useFeatureFlags } from '../features/feature-flags'
 type View =
   | 'overview'
   | 'users' | 'mfa' | 'onboarding' | 'offboarding' | 'chains'
-  | 'roles'
+  | 'roles' | 'policies'
   | 'clock' | 'overtime' | 'reports'
   | 'requests-all' | 'leave' | 'wfh' | 'promotion' | 'loan' | 'shifts'
   | 'notif-inapp' | 'notif-email' | 'notif-rules'
@@ -48,6 +49,7 @@ const icons = {
   userMinus: <Icon d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM23 11h-6" />,
   link: <Icon d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />,
   lock: <Icon d="M19 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2zM17 11V7a5 5 0 00-10 0v4" />,
+  file: <Icon d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V6zM14 2v4h4M8 11h8M8 15h8M8 19h5" />,
   clock: <Icon d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2" />,
   alert: <Icon d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01" />,
   bar: <Icon d="M18 20V10M12 20V4M6 20v-6" />,
@@ -79,7 +81,10 @@ const navGroups: NavGroup[] = [
   },
   {
     section: 'Permissions',
-    items: [{ view: 'roles', label: 'Roles & Scopes', icon: icons.lock }],
+    items: [
+      { view: 'roles', label: 'Roles & Scopes', icon: icons.lock },
+      { view: 'policies', label: 'Policies', icon: icons.file },
+    ],
   },
   {
     section: 'Time & Attendance',
@@ -123,6 +128,7 @@ const breadcrumbs: Record<View, [{ label: string; view: View }, { label: string;
   offboarding: [{ label: 'Identity & Access', view: 'users' }, { label: 'Offboarding', view: 'offboarding' }],
   chains: [{ label: 'Identity & Access', view: 'users' }, { label: 'Approval Chains', view: 'chains' }],
   roles: [{ label: 'Permissions', view: 'roles' }, { label: 'Roles & Scopes', view: 'roles' }],
+  policies: [{ label: 'Permissions', view: 'roles' }, { label: 'Policies', view: 'policies' }],
   clock: [{ label: 'Time & Attendance', view: 'clock' }, { label: 'Clock & Schedule', view: 'clock' }],
   overtime: [{ label: 'Time & Attendance', view: 'clock' }, { label: 'Overtime & Breaks', view: 'overtime' }],
   reports: [{ label: 'Time & Attendance', view: 'clock' }, { label: 'Reports', view: 'reports' }],
@@ -391,6 +397,7 @@ function ViewContent({
     return <IdentityAccess sub={view as IdentityAccessView} onSubChange={onView} />
   }
   if (view === 'roles') return <Permissions />
+  if (view === 'policies') return <Policies />
   if (view === 'clock' || view === 'overtime' || view === 'reports') {
     return <TimeAttendance sub={view as TimeAttendanceView} onSubChange={onView} />
   }
