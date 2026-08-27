@@ -1,6 +1,7 @@
 import { type InputHTMLAttributes, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Button, Dropdown, Input, StatusChip, StatusDot, SlideOver, Toggle, Reveal } from '../components/cultre-ui'
+import { UserProfileBubble } from '../components/UserProfileBubble'
 
 export type IdentityAccessView = 'users' | 'mfa' | 'onboarding' | 'offboarding' | 'chains'
 
@@ -308,7 +309,7 @@ function UserDetailsModal({
       >
         <div className="flex items-start justify-between gap-4 border-b border-(--color-line-light) px-6 py-5">
           <div>
-            <h2 id="edit-user-title" className="font-display font-700 text-xl text-(--color-ink)">Edit user details</h2>
+            <h2 id="edit-user-title" className="font-display font-700 text-xl text-(--color-ink)">Edit User Details</h2>
             <p className="mt-1 text-[13px] text-(--color-sage-dim)">{userName}</p>
           </div>
           <button
@@ -516,10 +517,13 @@ function UsersView() {
               >
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[10px]"
-                      style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}>
+                    <UserProfileBubble
+                      profile={{ name: u.name, role: u.role, team: u.dept }}
+                      className="h-7 w-7 bg-(--color-navy) font-mono text-[10px] text-(--color-sage)"
+                      status={u.lastActive === '2m ago' || u.lastActive.includes('m ago') ? `Active ${u.lastActive}` : `Last active ${u.lastActive}`}
+                    >
                       {u.name.split(' ').map(n => n[0]).join('')}
-                    </div>
+                    </UserProfileBubble>
                     <span className="text-[14px] font-500 text-(--color-ink)">{u.name}</span>
                   </div>
                 </td>
@@ -568,10 +572,13 @@ function UsersView() {
         {selected !== null && (
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center font-mono text-[16px] font-500"
-                style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}>
+              <UserProfileBubble
+                profile={{ name: users[selected].name, role: users[selected].role, team: users[selected].dept }}
+                className="h-14 w-14 bg-(--color-navy) font-mono text-[16px] font-500 text-(--color-sage)"
+                status={`Last active ${users[selected].lastActive}`}
+              >
                 {users[selected].name.split(' ').map(n => n[0]).join('')}
-              </div>
+              </UserProfileBubble>
               <div>
                 <h3 className="font-display font-700 text-[18px] text-(--color-ink)">{users[selected].name}</h3>
                 <p className="text-[14px] text-(--color-sage-dim)">{users[selected].role} · {users[selected].dept}</p>
@@ -895,7 +902,7 @@ function ChainsView() {
   const [chains, setChains] = useState<ApprovalChain[]>([
     {
       id: 0,
-      name: 'Default approval chain',
+      name: 'Default Approval Chain',
       steps: [
         { id: 0, userName: 'Marcus Chen' },
         { id: 1, userName: 'Lena Singh' },
@@ -1111,15 +1118,24 @@ function ChainsView() {
               key={chain.id}
               className="group min-h-36 rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-(--color-coral) hover:shadow-[0_10px_24px_rgba(11,20,38,0.07)]"
             >
-              <button
-                type="button"
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   resetAssignmentForm()
                   setIsViewingAssignments(false)
                   setIsEditingChain(false)
                   setSelectedChainId(chain.id)
                 }}
-                className="w-full cursor-pointer p-5 pb-0 text-left"
+                onKeyDown={event => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return
+                  event.preventDefault()
+                  resetAssignmentForm()
+                  setIsViewingAssignments(false)
+                  setIsEditingChain(false)
+                  setSelectedChainId(chain.id)
+                }}
+                className="w-full cursor-pointer p-5 pb-0 text-left focus-visible:outline-2 focus-visible:outline-(--color-coral)"
               >
                 <div className="flex items-start justify-between gap-4">
                   <h4 className="font-display font-600 text-[15px] text-(--color-ink) transition-colors group-hover:text-(--color-coral)">
@@ -1131,20 +1147,21 @@ function ChainsView() {
                 </div>
                 <div className="mt-5 flex items-center gap-2">
                   {chain.steps.slice(0, 4).map((step, index) => (
-                    <div
+                    <UserProfileBubble
                       key={step.id}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-(--color-offwhite-raised) font-mono text-[9px] text-(--color-sage)"
+                      profile={{ name: step.userName }}
+                      className="h-7 w-7 border-2 border-(--color-offwhite-raised) font-mono text-[9px] text-(--color-sage)"
                       style={{ background: 'var(--color-navy)', marginLeft: index > 0 ? '-7px' : undefined }}
-                      title={step.userName}
+                      status={`Approval stage ${index + 1}`}
                     >
                       {step.userName.split(' ').map(part => part[0]).join('')}
-                    </div>
+                    </UserProfileBubble>
                   ))}
                   <span className="ml-1 font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
                     {chain.steps.length} {chain.steps.length === 1 ? 'step' : 'steps'}
                   </span>
                 </div>
-              </button>
+              </div>
               <button
                 type="button"
                 onClick={() => {

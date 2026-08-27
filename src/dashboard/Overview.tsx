@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MetricCard, StatusChip, Reveal } from '../components/cultre-ui'
+import { UserProfileBubble } from '../components/UserProfileBubble'
 import italyFlag from 'flag-icons/flags/1x1/it.svg'
 import singaporeFlag from 'flag-icons/flags/1x1/sg.svg'
 import nigeriaFlag from 'flag-icons/flags/1x1/ng.svg'
@@ -13,75 +14,6 @@ const employees = [
   { name: 'L. Singh', fullName: 'Leena Singh', avatar: 'LS', time: '08:39', clockOutTime: '16:39', role: 'Finance Analyst', location: 'India', countryFlag: indiaFlag, dept: 'Finance', startDate: 'April 8, 2024' },
   { name: 'T. Park', fullName: 'Taehyun Park', avatar: 'TP', time: '09:27', clockOutTime: '19:27', role: 'Frontend Engineer', location: 'South Korea', countryFlag: southKoreaFlag, dept: 'Engineering', startDate: 'January 20, 2025' },
 ]
-
-type Employee = (typeof employees)[number]
-
-function EmployeeHoverCard({ employee, id, activity = 'in' }: { employee: Employee; id: string; activity?: 'in' | 'out' }) {
-  const activityTime = activity === 'in' ? employee.time : employee.clockOutTime
-  const activityLabel = activity === 'in' ? 'Clocked in' : 'Clocked out'
-
-  return (
-    <div
-      id={id}
-      role="tooltip"
-      className="invisible absolute left-1/2 top-[calc(100%+8px)] z-50 w-[min(320px,calc(100vw-64px))] -translate-x-[24%] translate-y-1 cursor-default rounded-[14px] border border-(--color-line-light) bg-(--color-offwhite-raised) text-left opacity-0 shadow-[0_20px_50px_rgba(11,20,38,0.2)] transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100"
-    >
-      <span className="absolute -top-2 left-0 h-2 w-full" aria-hidden="true" />
-
-      <div className="flex items-center gap-3.5 p-4">
-        <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-display text-[13px] font-700 text-white shadow-sm"
-          style={{ background: 'linear-gradient(145deg, var(--color-coral), var(--color-coral-deep))' }}
-          aria-hidden="true"
-        >
-          {employee.avatar}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-[16px] font-700 text-(--color-ink)">{employee.fullName}</p>
-          <p className="mt-0.5 truncate text-[12px] text-(--color-sage-dim)">{employee.role}</p>
-        </div>
-        <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--color-sage)/20 text-(--color-sage-dim)"
-          aria-label={activityLabel}
-        >
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7v5l3 2" />
-          </svg>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3 border-t border-(--color-line-light) px-4 py-3.5">
-        <div className="min-w-0">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-(--color-sage-dim)">Location</p>
-          <div className="mt-1 flex items-center gap-1.5">
-            <img
-              src={employee.countryFlag}
-              alt=""
-              className="h-[18px] w-[18px] shrink-0 rounded-full object-cover shadow-[0_0_0_1px_rgba(11,20,38,0.12)]"
-            />
-            <p className="truncate text-[11px] font-600 leading-4 text-(--color-ink)">{employee.location}</p>
-          </div>
-        </div>
-        <div className="min-w-0">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-(--color-sage-dim)">Team</p>
-          <p className="mt-1 text-[11px] font-600 leading-4 text-(--color-ink)">{employee.dept}</p>
-        </div>
-        <div className="min-w-0">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-(--color-sage-dim)">Start date</p>
-          <p className="mt-1 text-[11px] font-600 leading-4 text-(--color-ink)">{employee.startDate}</p>
-        </div>
-      </div>
-
-      <div className="mx-4 mb-4 flex items-center justify-center gap-2 rounded-[8px] bg-(--color-sage)/20 px-3 py-2.5 text-[12px] font-600 text-[#526650]">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 8.5l3 3 7-7" />
-        </svg>
-        {activityLabel} today at {activityTime}
-      </div>
-    </div>
-  )
-}
 
 const pending = [
   { name: 'M. Chen', type: 'Leave', label: 'Annual leave · 3 days', date: 'Aug 12–14' },
@@ -131,7 +63,7 @@ export default function Overview() {
                   {['08:00', '09:00', '10:00', '11:00', '12:00'].map(t => <span key={t}>{t}</span>)}
                 </div>
                 <div className="relative h-12 rounded-[4px] mb-4" style={{ background: 'rgba(11,20,38,0.04)' }}>
-                  {employees.map((e, i) => {
+                  {employees.map(e => {
                     const [h, m] = e.time.split(':').map(Number)
                     const pct = ((h - 8) * 60 + m) / 240 * 100
                     return (
@@ -140,16 +72,15 @@ export default function Overview() {
                         className="group absolute top-1/2 -translate-x-1/2 -translate-y-1/2 hover:z-40 focus-within:z-40"
                         style={{ left: `${pct}%` }}
                       >
-                        <button
-                          type="button"
+                        <UserProfileBubble
+                          profile={{ name: e.fullName, initials: e.avatar, role: e.role, team: e.dept, location: e.location, countryFlag: e.countryFlag, startDate: e.startDate }}
                           className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full font-mono text-[10px] font-500 transition-transform duration-150 hover:scale-110 focus-visible:scale-110"
                           style={{ background: 'var(--color-navy)', color: 'var(--color-sage)', border: '1px solid var(--color-line-dark)' }}
-                          aria-label={`${e.fullName} clocked in at ${e.time}. Show employee details.`}
-                          aria-describedby={`employee-card-${i}`}
+                          ariaLabel={`${e.fullName} clocked in at ${e.time}. Show employee profile.`}
+                          status={`Clocked in today at ${e.time}`}
                         >
                           {e.avatar}
-                        </button>
-                        <EmployeeHoverCard employee={e} id={`employee-card-${i}`} />
+                        </UserProfileBubble>
                       </div>
                     )
                   })}
@@ -157,10 +88,14 @@ export default function Overview() {
                 <div className="flex flex-wrap gap-3">
                   {employees.map(e => (
                     <div key={e.name} className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-mono"
-                        style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}>
+                      <UserProfileBubble
+                        profile={{ name: e.fullName, initials: e.avatar, role: e.role, team: e.dept, location: e.location, countryFlag: e.countryFlag, startDate: e.startDate }}
+                        className="h-5 w-5 font-mono text-[9px]"
+                        style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}
+                        status={`Clocked in today at ${e.time}`}
+                      >
                         {e.avatar}
-                      </div>
+                      </UserProfileBubble>
                       <span className="font-mono text-[11px] text-(--color-sage-dim)">{e.name} <span className="text-(--color-ink)">{e.time}</span></span>
                     </div>
                   ))}
@@ -184,7 +119,7 @@ export default function Overview() {
                   {['16:00', '17:00', '18:00', '19:00', '20:00'].map(t => <span key={t}>{t}</span>)}
                 </div>
                 <div className="relative h-12 rounded-[4px] mb-4" style={{ background: 'rgba(11,20,38,0.04)' }}>
-                  {employees.map((e, i) => {
+                  {employees.map(e => {
                     const [h, m] = e.clockOutTime.split(':').map(Number)
                     const pct = ((h - 16) * 60 + m) / 240 * 100
                     return (
@@ -193,16 +128,15 @@ export default function Overview() {
                         className="group absolute top-1/2 -translate-x-1/2 -translate-y-1/2 hover:z-40 focus-within:z-40"
                         style={{ left: `${pct}%` }}
                       >
-                        <button
-                          type="button"
+                        <UserProfileBubble
+                          profile={{ name: e.fullName, initials: e.avatar, role: e.role, team: e.dept, location: e.location, countryFlag: e.countryFlag, startDate: e.startDate }}
                           className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full font-mono text-[10px] font-500 transition-transform duration-150 hover:scale-110 focus-visible:scale-110"
                           style={{ background: 'var(--color-navy)', color: 'var(--color-sage)', border: '1px solid var(--color-line-dark)' }}
-                          aria-label={`${e.fullName} clocked out at ${e.clockOutTime}. Show employee details.`}
-                          aria-describedby={`clock-out-employee-card-${i}`}
+                          ariaLabel={`${e.fullName} clocked out at ${e.clockOutTime}. Show employee profile.`}
+                          status={`Clocked out today at ${e.clockOutTime}`}
                         >
                           {e.avatar}
-                        </button>
-                        <EmployeeHoverCard employee={e} id={`clock-out-employee-card-${i}`} activity="out" />
+                        </UserProfileBubble>
                       </div>
                     )
                   })}
@@ -210,10 +144,14 @@ export default function Overview() {
                 <div className="flex flex-wrap gap-3">
                   {employees.map(e => (
                     <div key={e.name} className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-mono"
-                        style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}>
+                      <UserProfileBubble
+                        profile={{ name: e.fullName, initials: e.avatar, role: e.role, team: e.dept, location: e.location, countryFlag: e.countryFlag, startDate: e.startDate }}
+                        className="h-5 w-5 font-mono text-[9px]"
+                        style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}
+                        status={`Clocked out today at ${e.clockOutTime}`}
+                      >
                         {e.avatar}
-                      </div>
+                      </UserProfileBubble>
                       <span className="font-mono text-[11px] text-(--color-sage-dim)">{e.name} <span className="text-(--color-ink)">{e.clockOutTime}</span></span>
                     </div>
                   ))}

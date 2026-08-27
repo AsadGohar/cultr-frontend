@@ -402,7 +402,7 @@ function PlaybookEditor({
   return (
     <Modal
       open={open}
-      title={template ? "Edit playbook" : "Create playbook"}
+      title={template ? "Edit Playbook" : "Create Playbook"}
       description="Define a reusable lifecycle template and the tasks it creates."
       onClose={onClose}
       wide
@@ -558,7 +558,7 @@ function PlaybookEditor({
             Cancel
           </button>
           <Button type="submit" disabled={!valid}>
-            {template ? "Save changes" : "Create playbook"}
+            {template ? "Save changes" : "Create Playbook"}
           </Button>
         </div>
       </form>
@@ -586,7 +586,7 @@ function StartProcessModal({
   return (
     <Modal
       open={Boolean(template)}
-      title="Start lifecycle process"
+      title="Start Lifecycle Process"
       description="Create an employee-specific instance from this playbook."
       onClose={onClose}
     >
@@ -634,7 +634,7 @@ function StartProcessModal({
               Cancel
             </button>
             <Button type="submit" disabled={!userId}>
-              Start process
+              Start Process
             </Button>
           </div>
         </form>
@@ -928,7 +928,7 @@ export default function Playbooks() {
           </p>
         </div>
         <Button type="button" onClick={openCreate}>
-          <span aria-hidden="true">+</span> Create playbook
+          <span aria-hidden="true">+</span> Create Playbook
         </Button>
       </div>
 
@@ -1066,7 +1066,7 @@ export default function Playbooks() {
                     onClick={() => setStartingTemplateId(template.id)}
                     className="flex-1 rounded-[6px] bg-(--color-navy) px-3 py-2.5 font-display text-[13px] font-600 text-(--color-offwhite) transition-colors hover:bg-(--color-navy-raised) disabled:cursor-not-allowed disabled:opacity-35"
                   >
-                    Start process
+                    Start Process
                   </button>
                 </div>
               </article>

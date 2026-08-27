@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import Overview from '../dashboard/Overview'
 import IdentityAccess, { type IdentityAccessView } from '../dashboard/IdentityAccess'
 import Permissions from '../dashboard/Permissions'
@@ -10,6 +10,7 @@ import Settings, { type SettingSection } from '../dashboard/Settings'
 import Playbooks from '../dashboard/Playbooks'
 import { isDashboardViewEnabled } from '../dashboard/featureAccess'
 import { Tooltip } from '../components/cultre-ui'
+import { UserProfileBubble } from '../components/UserProfileBubble'
 import { useFeatureFlags } from '../features/feature-flags'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -277,24 +278,6 @@ function Sidebar({
 // ── Top bar ───────────────────────────────────────────────────────────────────
 
 function TopBar({ view, unread, onView, onNotif, onSignOut }: { view: View; unread: number; onView: (view: View) => void; onNotif: () => void; onSignOut: () => void }) {
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const userMenuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const closeOnOutsideClick = (event: PointerEvent) => {
-      if (!userMenuRef.current?.contains(event.target as Node)) setUserMenuOpen(false)
-    }
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setUserMenuOpen(false)
-    }
-    document.addEventListener('pointerdown', closeOnOutsideClick)
-    document.addEventListener('keydown', closeOnEscape)
-    return () => {
-      document.removeEventListener('pointerdown', closeOnOutsideClick)
-      document.removeEventListener('keydown', closeOnEscape)
-    }
-  }, [])
-
   return (
     <header className="h-16 flex items-center justify-between gap-3 pl-14 pr-4 md:px-6 flex-shrink-0"
       style={{ background: 'var(--color-offwhite-raised)', borderBottom: '1px solid var(--color-line-light)' }}>
@@ -346,43 +329,27 @@ function TopBar({ view, unread, onView, onNotif, onSignOut }: { view: View; unre
           </button>
         </Tooltip>
 
-        {/* User menu */}
-        <div ref={userMenuRef} className="relative">
-          <button
-            type="button"
-            onClick={() => setUserMenuOpen(open => !open)}
-            className="w-8 h-8 rounded-full flex items-center justify-center font-mono text-[11px] text-white transition-all hover:ring-2 hover:ring-(--color-coral)/25 focus-visible:ring-2 focus-visible:ring-(--color-coral)/30"
-            style={{ background: 'var(--color-coral)' }}
-            aria-label="Open user menu"
-            aria-haspopup="menu"
-            aria-expanded={userMenuOpen}
-          >
-            AR
-          </button>
-
-          {userMenuOpen && (
-            <div
-              role="menu"
-              className="absolute right-0 top-full mt-2 z-50 w-56 overflow-hidden rounded-[8px] border border-(--color-line-light) bg-(--color-offwhite-raised) shadow-[0_16px_40px_rgba(11,20,38,0.16)] animate-dropdown-in"
+        {/* Current user */}
+        <UserProfileBubble
+          profile={{ name: 'Alexandra Rossi', initials: 'AR', role: 'Administrator', team: 'Engineering' }}
+          className="h-8 w-8 font-mono text-[11px] text-white hover:ring-2 hover:ring-(--color-coral)/25 focus-visible:ring-2 focus-visible:ring-(--color-coral)/30"
+          style={{ background: 'var(--color-coral)' }}
+          status="Administrator · Active"
+          footer={(
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="flex w-full items-center gap-2.5 rounded-[6px] px-3 py-2.5 text-left text-[13px] text-(--color-coral) transition-colors hover:bg-(--color-coral)/6"
             >
-              <div className="px-4 py-3.5 border-b border-(--color-line-light)">
-                <p className="font-display font-600 text-[14px] text-(--color-ink)">Alexandra Rossi</p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">Administrator</p>
-              </div>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={onSignOut}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-[13px] text-(--color-coral) transition-colors hover:bg-(--color-coral)/6"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-                </svg>
-                Sign out
-              </button>
-            </div>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+              </svg>
+              Sign out
+            </button>
           )}
-        </div>
+        >
+          AR
+        </UserProfileBubble>
       </div>
     </header>
   )

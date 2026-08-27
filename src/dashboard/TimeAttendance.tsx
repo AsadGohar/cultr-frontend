@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Dropdown, Reveal, StatusChip } from '../components/cultre-ui'
+import { UserProfileBubble } from '../components/UserProfileBubble'
 
 export type TimeAttendanceView = 'clock' | 'overtime' | 'reports'
 type SubView = TimeAttendanceView
@@ -277,18 +278,17 @@ function ClockView() {
                 >
                   {/* Person info */}
                   <div className="w-[200px] shrink-0 flex items-center gap-3 px-5 py-3">
-                    <div className="relative shrink-0">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-mono text-[10px] font-500"
-                        style={{ background: person.teamColor + '22', color: person.teamColor, border: `1px solid ${person.teamColor}40` }}>
+                    <UserProfileBubble
+                      profile={{ name: person.name, initials: person.initials, team: person.team }}
+                      className="h-8 w-8 font-mono text-[10px] font-500"
+                      style={{ background: person.teamColor + '22', color: person.teamColor, border: `1px solid ${person.teamColor}40` }}
+                      status={person.clockedIn && activeDay === NOW_DAY ? `Clocked in today at ${person.clockInTime}` : 'Not clocked in'}
+                      indicator={person.clockedIn && activeDay === NOW_DAY ? (
+                        <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 bg-(--color-sage) border-(--color-offwhite-raised)" aria-label="Clocked in" />
+                      ) : undefined}
+                    >
                         {person.initials}
-                      </div>
-                      {/* Live dot */}
-                      {person.clockedIn && activeDay === NOW_DAY && (
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2"
-                          style={{ background: 'var(--color-sage)', borderColor: 'var(--color-offwhite-raised)' }}
-                          aria-label="Clocked in" />
-                      )}
-                    </div>
+                    </UserProfileBubble>
                     <div className="min-w-0">
                       <p className="text-[13px] font-500 text-(--color-ink) truncate leading-tight">
                         {person.name.split(' ')[0]}
@@ -372,21 +372,16 @@ function ClockView() {
             <span className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim) shrink-0">Live now</span>
             <div className="flex items-center gap-0" style={{ marginLeft: '-2px' }}>
               {people.filter(p => p.clockedIn).map((p, i) => (
-                <div
-                  key={p.name}
-                  className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[9px] font-500 border-2"
-                  style={{
-                    background: p.teamColor + '22',
-                    color: p.teamColor,
-                    borderColor: 'var(--color-offwhite-raised)',
-                    marginLeft: i > 0 ? '-8px' : '0',
-                    zIndex: 10 - i,
-                    position: 'relative',
-                  }}
-                  title={p.name}
-                  aria-label={`${p.name} â€” clocked in at ${p.clockInTime}`}
-                >
-                  {p.initials}
+                <div key={p.name} style={{ marginLeft: i > 0 ? '-8px' : '0', zIndex: 10 - i, position: 'relative' }}>
+                  <UserProfileBubble
+                    profile={{ name: p.name, initials: p.initials, team: p.team }}
+                    className="h-7 w-7 border-2 border-(--color-offwhite-raised) font-mono text-[9px] font-500"
+                    style={{ background: p.teamColor + '22', color: p.teamColor }}
+                    ariaLabel={`${p.name} — clocked in at ${p.clockInTime}`}
+                    status={`Clocked in today at ${p.clockInTime}`}
+                  >
+                    {p.initials}
+                  </UserProfileBubble>
                 </div>
               ))}
             </div>
@@ -439,10 +434,13 @@ function OvertimeView() {
             <div key={alert.name} className="flex items-center justify-between px-6 py-4"
               style={{ borderTop: i > 0 ? '1px solid var(--color-line-light)' : undefined }}>
               <div className="flex items-center gap-4">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[10px]"
-                  style={{ background: 'var(--color-navy)', color: 'var(--color-sage)' }}>
+                <UserProfileBubble
+                  profile={{ name: alert.name, team: alert.dept }}
+                  className="h-7 w-7 bg-(--color-navy) font-mono text-[10px] text-(--color-sage)"
+                  status={`${alert.hours}h worked on ${alert.date}`}
+                >
                   {alert.name.split(' ').map(n => n[0]).join('')}
-                </div>
+                </UserProfileBubble>
                 <div>
                   <p className="text-[14px] font-500 text-(--color-ink)">{alert.name}</p>
                   <p className="font-mono text-[11px] text-(--color-sage-dim)">{alert.dept}</p>

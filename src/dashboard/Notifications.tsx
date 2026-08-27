@@ -400,7 +400,7 @@ function RulesTab() {
                   id="add-rule-title"
                   className="font-display text-xl font-700 text-(--color-ink)"
                 >
-                  Add automated rule
+                  Add Automated Rule
                 </h2>
                 <p className="mt-1 text-[13px] text-(--color-sage-dim)">
                   Define what triggers the rule and what should happen next.

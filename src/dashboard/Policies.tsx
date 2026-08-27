@@ -105,7 +105,7 @@ export default function Policies() {
           >
             <div className="flex items-start justify-between gap-4 border-b border-(--color-line-light) px-6 py-5">
               <div>
-                <h2 id="add-policy-title" className="font-display font-700 text-xl text-(--color-ink)">Add policy</h2>
+                <h2 id="add-policy-title" className="font-display font-700 text-xl text-(--color-ink)">Add Policy</h2>
                 <p className="mt-1 text-[13px] text-(--color-sage-dim)">Write the policy that should be added for the organization.</p>
               </div>
               <button

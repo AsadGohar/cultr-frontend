@@ -1,16 +1,100 @@
 import { useState } from 'react'
-import { Button, Dropdown, Input, SlideOver, Reveal, Textarea, useToast } from '../components/cultre-ui'
+import { Button, Dropdown, Input, SlideOver, Reveal, StatusChip, Textarea, useToast } from '../components/cultre-ui'
+import { UserProfileBubble } from '../components/UserProfileBubble'
 
 export type RequestTab = 'all' | 'leave' | 'wfh' | 'promotion' | 'loan' | 'shift'
 type TabType = RequestTab
+type ReviewerStatus = 'approved' | 'in_review' | 'waiting' | 'declined'
+
+type Reviewer = {
+  name: string
+  role: string
+  status: ReviewerStatus
+}
 
 const allRequests = [
-  { id: 0, name: 'M. Chen', type: 'leave' as TabType, label: 'Annual leave · 3 days', date: 'Aug 12–14', status: 'pending', swap: null },
-  { id: 1, name: 'T. Park', type: 'wfh' as TabType, label: 'Work from home · Fri', date: 'Aug 9', status: 'approved', swap: null },
-  { id: 2, name: 'A. Rossi', type: 'promotion' as TabType, label: 'Promotion · L4 → L5', date: 'Aug 2', status: 'pending', swap: null },
-  { id: 3, name: 'L. Singh', type: 'loan' as TabType, label: 'Salary advance · $2,000', date: 'Jul 30', status: 'in_review', swap: null },
-  { id: 4, name: 'J. Okoro', type: 'leave' as TabType, label: 'Sick leave · 1 day', date: 'Aug 7', status: 'approved', swap: null },
-  { id: 5, name: 'R. Torres', type: 'shift' as TabType, label: 'Shift swap · Mon→Wed', date: 'Aug 5', status: 'pending', swap: { from: 'Mon Aug 5, 09–18', to: 'Wed Aug 7, 09–18', with: 'T. Park' } },
+  {
+    id: 0,
+    name: 'M. Chen',
+    type: 'leave' as TabType,
+    label: 'Annual leave · 3 days',
+    date: 'Aug 12–14',
+    status: 'pending',
+    reviewers: [
+      { name: 'Marcus Chen', role: 'Design manager', status: 'approved' },
+      { name: 'Alexandra Rossi', role: 'People administrator', status: 'in_review' },
+      { name: 'Jordan Okoro', role: 'Operations lead', status: 'waiting' },
+    ] as Reviewer[],
+    swap: null,
+  },
+  {
+    id: 1,
+    name: 'T. Park',
+    type: 'wfh' as TabType,
+    label: 'Work from home · Fri',
+    date: 'Aug 9',
+    status: 'approved',
+    reviewers: [
+      { name: 'Marcus Chen', role: 'Design manager', status: 'approved' },
+      { name: 'Alexandra Rossi', role: 'People administrator', status: 'approved' },
+    ] as Reviewer[],
+    swap: null,
+  },
+  {
+    id: 2,
+    name: 'A. Rossi',
+    type: 'promotion' as TabType,
+    label: 'Promotion · L4 → L5',
+    date: 'Aug 2',
+    status: 'pending',
+    reviewers: [
+      { name: 'Marcus Chen', role: 'Department manager', status: 'approved' },
+      { name: 'Jordan Okoro', role: 'Operations lead', status: 'in_review' },
+      { name: 'Leena Singh', role: 'Finance manager', status: 'waiting' },
+    ] as Reviewer[],
+    swap: null,
+  },
+  {
+    id: 3,
+    name: 'L. Singh',
+    type: 'loan' as TabType,
+    label: 'Salary advance · $2,000',
+    date: 'Jul 30',
+    status: 'in_review',
+    reviewers: [
+      { name: 'Marcus Chen', role: 'Department manager', status: 'approved' },
+      { name: 'Leena Singh', role: 'Finance manager', status: 'in_review' },
+      { name: 'Jordan Okoro', role: 'Operations lead', status: 'waiting' },
+    ] as Reviewer[],
+    swap: null,
+  },
+  {
+    id: 4,
+    name: 'J. Okoro',
+    type: 'leave' as TabType,
+    label: 'Sick leave · 1 day',
+    date: 'Aug 7',
+    status: 'approved',
+    reviewers: [
+      { name: 'Marcus Chen', role: 'Department manager', status: 'approved' },
+      { name: 'Alexandra Rossi', role: 'People administrator', status: 'approved' },
+    ] as Reviewer[],
+    swap: null,
+  },
+  {
+    id: 5,
+    name: 'R. Torres',
+    type: 'shift' as TabType,
+    label: 'Shift swap · Mon → Wed',
+    date: 'Aug 5',
+    status: 'pending',
+    reviewers: [
+      { name: 'T. Park', role: 'Swap partner', status: 'approved' },
+      { name: 'Jordan Okoro', role: 'Operations lead', status: 'in_review' },
+      { name: 'Alexandra Rossi', role: 'People administrator', status: 'waiting' },
+    ] as Reviewer[],
+    swap: { from: 'Mon Aug 5, 09–18', to: 'Wed Aug 7, 09–18', with: 'T. Park' },
+  },
 ]
 
 type RequestItem = (typeof allRequests)[number]
@@ -29,6 +113,94 @@ function requestStatusMeta(status: string) {
   if (status === 'declined') return { label: 'Declined', color: 'var(--color-coral-deep)' }
   if (status === 'in_review') return { label: 'In review', color: '#9B7A35' }
   return { label: 'Needs review', color: 'var(--color-coral)' }
+}
+
+const reviewerStatusMeta: Record<ReviewerStatus, { label: string; variant: 'success' | 'pending' | 'alert' | 'neutral' }> = {
+  approved: { label: 'Approved', variant: 'success' },
+  in_review: { label: 'In review', variant: 'pending' },
+  waiting: { label: 'Waiting', variant: 'neutral' },
+  declined: { label: 'Declined', variant: 'alert' },
+}
+
+function initials(name: string) {
+  return name.split(' ').map(part => part[0]).join('').slice(0, 2)
+}
+
+function reviewersForStatus(reviewers: Reviewer[], requestStatus: string) {
+  if (requestStatus === 'approved') return reviewers.map(reviewer => ({ ...reviewer, status: 'approved' as const }))
+  if (requestStatus !== 'declined') return reviewers
+
+  let declinedAssigned = false
+  return reviewers.map(reviewer => {
+    if (!declinedAssigned && reviewer.status === 'in_review') {
+      declinedAssigned = true
+      return { ...reviewer, status: 'declined' as const }
+    }
+    return reviewer
+  })
+}
+
+function ReviewProgress({ reviewers, requestStatus, compact = false }: { reviewers: Reviewer[]; requestStatus: string; compact?: boolean }) {
+  const visibleReviewers = reviewersForStatus(reviewers, requestStatus)
+  const approved = visibleReviewers.filter(reviewer => reviewer.status === 'approved').length
+
+  if (compact) {
+    return (
+      <div className="flex items-center justify-between gap-3 border-t border-(--color-line-light) py-3">
+        <div className="flex -space-x-1.5">
+          {visibleReviewers.map((reviewer, index) => (
+            <UserProfileBubble
+              key={reviewer.name}
+              profile={{ name: reviewer.name, role: reviewer.role }}
+              className="h-6 w-6 border-2 border-(--color-offwhite-raised) bg-(--color-navy) font-mono text-[7px] text-(--color-sage)"
+              style={{ zIndex: visibleReviewers.length - index }}
+              status={`Review status: ${reviewerStatusMeta[reviewer.status].label}`}
+            >
+              {initials(reviewer.name)}
+            </UserProfileBubble>
+          ))}
+        </div>
+        <span className="text-[10px] font-500 text-(--color-sage-dim)">
+          {approved} of {visibleReviewers.length} approved
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <section aria-labelledby="review-progress-title">
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <div>
+          <h3 id="review-progress-title" className="font-display text-[14px] font-700 text-(--color-ink)">Review progress</h3>
+          <p className="mt-1 text-[11px] text-(--color-sage-dim)">Reviewers are shown in approval order.</p>
+        </div>
+        <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-(--color-sage-dim)">
+          {approved}/{visibleReviewers.length} approved
+        </span>
+      </div>
+      <ol className="overflow-hidden rounded-[10px] border border-(--color-line-light) bg-(--color-offwhite-raised)">
+        {visibleReviewers.map((reviewer, index) => {
+          const meta = reviewerStatusMeta[reviewer.status]
+          return (
+            <li key={reviewer.name} className="relative flex items-center gap-3 px-4 py-3.5 not-first:border-t not-first:border-(--color-line-light)">
+              <UserProfileBubble
+                profile={{ name: reviewer.name, role: reviewer.role }}
+                className="h-8 w-8 bg-(--color-navy) font-mono text-[9px] text-(--color-sage)"
+                status={`Review status: ${meta.label}`}
+              >
+                {initials(reviewer.name)}
+              </UserProfileBubble>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[12px] font-600 text-(--color-ink)">{reviewer.name}</p>
+                <p className="mt-0.5 truncate text-[10px] text-(--color-sage-dim)">Stage {index + 1} · {reviewer.role}</p>
+              </div>
+              <StatusChip variant={meta.variant}>{meta.label}</StatusChip>
+            </li>
+          )
+        })}
+      </ol>
+    </section>
+  )
 }
 
 function AllRequestCard({ request, status, onOpen }: { request: RequestItem; status: string; onOpen: () => void }) {
@@ -55,16 +227,22 @@ function AllRequestCard({ request, status, onOpen }: { request: RequestItem; sta
       </div>
 
       <div className="my-3.5 flex items-center gap-2.5 rounded-[8px] bg-(--color-offwhite) px-3 py-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--color-navy) font-mono text-[9px] text-(--color-sage)" aria-hidden="true">
+        <UserProfileBubble
+          profile={{ name: request.name }}
+          className="h-7 w-7 bg-(--color-navy) font-mono text-[9px] text-(--color-sage)"
+          status="Requester profile"
+        >
           {request.name.split(' ').map(part => part[0]).join('')}
-        </span>
+        </UserProfileBubble>
         <div className="min-w-0">
           <p className="text-[12px] font-500 text-(--color-ink)">{request.name}</p>
           <p className="font-mono text-[9px] uppercase tracking-wider text-(--color-sage-dim)">Requester</p>
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-(--color-line-light) pt-3">
+      <ReviewProgress reviewers={request.reviewers} requestStatus={status} compact />
+
+      <div className="flex items-center justify-between pt-3">
         <span className="flex items-center gap-2 text-[11px] font-500 text-(--color-sage-dim)">
           <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusMeta.color }} aria-hidden="true" />
           {statusMeta.label}
@@ -160,7 +338,7 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M7 1v12M1 7h12" />
               </svg>
-              New request
+              New Request
             </button>
           </div>
           <div className="grid gap-4 lg:grid-cols-3">
@@ -177,7 +355,7 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
       </Reveal>
 
       {/* New request slide-over */}
-      <SlideOver open={newOpen} onClose={() => setNewOpen(false)} title="New request">
+      <SlideOver open={newOpen} onClose={() => setNewOpen(false)} title="New Request">
         <div className="flex flex-col gap-5">
           <Dropdown
             label="Request type"
@@ -211,7 +389,7 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
 
       {/* Request detail slide-over */}
       {selectedRequest && (
-        <SlideOver open={true} onClose={() => setRequestOpen(null)} title="Request details">
+        <SlideOver open={true} onClose={() => setRequestOpen(null)} title="Request Details">
           <div className="flex flex-col gap-6">
             <div className="flex items-start gap-3.5">
               <span
@@ -251,6 +429,8 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
               </div>
             </div>
 
+            <ReviewProgress reviewers={selectedRequest.reviewers} requestStatus={statuses[selectedRequest.id]} />
+
             {statuses[selectedRequest.id] === 'pending' && (
               <div className="flex gap-3 border-t border-(--color-line-light) pt-5">
                 <button
@@ -275,7 +455,7 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
 
       {/* Shift swap slide-over */}
       {swapOpen !== null && (
-        <SlideOver open={true} onClose={() => setSwapOpen(null)} title="Shift swap proposal">
+        <SlideOver open={true} onClose={() => setSwapOpen(null)} title="Shift Swap Proposal">
           <div className="flex flex-col gap-6">
             <p className="text-[14px] text-(--color-sage-dim)">
               <strong className="text-(--color-ink)">R. Torres</strong> is proposing a shift swap with <strong className="text-(--color-ink)">T. Park</strong>.
@@ -295,6 +475,7 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
                 <span className="font-mono text-[12px] text-(--color-ink)">Wed Aug 7<br />09:00–18:00</span>
               </div>
             </div>
+            <ReviewProgress reviewers={allRequests[5].reviewers} requestStatus={statuses[5]} />
             <div className="flex gap-3 pt-2">
               <button onClick={() => { approve(5); setSwapOpen(null) }}
                 className="flex-1 py-3 rounded-[6px] font-display font-600 text-[14px]"
