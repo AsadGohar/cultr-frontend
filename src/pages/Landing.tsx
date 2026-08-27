@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button, Reveal } from '../components/cultre-ui'
 
+const heroBgVideo = '/From Klickpin.com- Collect these 24 Modern productive morning routine ideas that instantly upgrade your space style or celebration without much ef.mp4'
+const modulesBgVideo = '/From Klickpin.com- Family Dinner Ideas Ideas Youll Keep Coming Back To 46079-pin-id-759771399721606503.mp4'
+
 // ── Nav ───────────────────────────────────────────────────────────────────────
 
 function Nav({ onSignIn, onSignUp }: { onSignIn: () => void; onSignUp: () => void }) {
@@ -179,9 +182,31 @@ function Hero({ onSignUp }: { onSignUp: () => void }) {
       className="min-h-screen relative flex scroll-mt-16 items-center pt-16"
       style={{ background: 'var(--color-navy)' }}
     >
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <video
+          src={heroBgVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{
+            opacity: 0.5,
+            filter: 'blur(2px) grayscale(1) brightness(0.6)',
+            transform: 'scale(1.04)',
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-navy) 0%, transparent 60%, var(--color-navy) 100%)',
+          }}
+        />
+      </div>
+
       {/* Grid lines background */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="pointer-events-none absolute inset-0 z-[1]"
         style={{
           backgroundImage: `
             linear-gradient(var(--color-sage) 1px, transparent 1px),
@@ -193,7 +218,7 @@ function Hero({ onSignUp }: { onSignUp: () => void }) {
         aria-hidden="true"
       />
 
-      <div className="relative max-w-[1280px] mx-auto w-full px-8 md:px-12 py-24 grid md:grid-cols-2 gap-16 items-center">
+      <div className="relative z-10 max-w-[1280px] mx-auto w-full px-8 md:px-12 py-24 grid md:grid-cols-2 gap-16 items-center">
         {/* Left: Copy */}
         <div>
           <div
@@ -696,8 +721,30 @@ function ModuleNotifs() {
 
 function Modules() {
   return (
-    <section id="modules" className="scroll-mt-16" style={{ background: 'var(--color-navy)', padding: '96px 0' }}>
-      <div className="max-w-[1280px] mx-auto px-8 md:px-12">
+    <section id="modules" className="relative overflow-hidden scroll-mt-16" style={{ background: 'var(--color-navy)', padding: '96px 0' }}>
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <video
+          src={modulesBgVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{
+            opacity: 0.5,
+            filter: 'blur(3px) grayscale(0.6) brightness(0.5)',
+            transform: 'scale(1.04)',
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, var(--color-navy) 0%, transparent 25%, transparent 75%, var(--color-navy) 100%)',
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-[1280px] mx-auto px-8 md:px-12">
         <Reveal>
           <div className="mb-16">
             <span className="font-mono text-[11px] text-(--color-sage) uppercase tracking-widest">Core Modules</span>
