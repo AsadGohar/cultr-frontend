@@ -115,100 +115,162 @@ const initialRules: Rule[] = [
   },
 ];
 
+const itemsPerPage = 3;
+
+function NotificationPagination({
+  currentPage,
+  totalItems,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  const firstItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const lastItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+  return (
+    <div className="mt-auto flex items-center justify-between pt-3.5">
+      <span className="font-mono text-[11px] text-(--color-sage-dim)">
+        {firstItem}&ndash;{lastItem} of {totalItems}
+      </span>
+      <div className="flex gap-1">
+        <button
+          type="button"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="rounded-[4px] border border-(--color-line-light) px-3 py-1.5 font-mono text-[11px] text-(--color-sage-dim) transition-colors hover:border-(--color-coral) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-(--color-line-light)"
+        >
+          &larr; Prev
+        </button>
+        <button
+          type="button"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="rounded-[4px] border border-(--color-line-light) px-3 py-1.5 font-mono text-[11px] text-(--color-sage-dim) transition-colors hover:border-(--color-coral) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-(--color-line-light)"
+        >
+          Next &rarr;
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function InAppTab() {
   const [notifs, setNotifs] = useState(inAppNotifs);
+  const [page, setPage] = useState(1);
 
   const markRead = (id: number) =>
     setNotifs(n => n.map(x => (x.id === id ? { ...x, unread: false } : x)));
 
+  const totalPages = Math.max(1, Math.ceil(notifs.length / itemsPerPage));
+  const currentPage = Math.min(page, totalPages);
+  const firstItemIndex = (currentPage - 1) * itemsPerPage;
+  const visibleNotifs = notifs.slice(firstItemIndex, firstItemIndex + itemsPerPage);
   const byDay: Record<string, typeof inAppNotifs> = {};
-  notifs.forEach(n => {
+  visibleNotifs.forEach(n => {
     const key =
       n.time === "Just now" || n.time.endsWith("ago") ? "Today" : n.time;
     (byDay[key] = byDay[key] || []).push(n);
   });
 
   return (
-    <Reveal>
-      <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
-        {Object.entries(byDay).map(([day, items]) => (
-          <div key={day}>
-            <div
-              className="px-6 py-3"
-              style={{
-                background: "var(--color-offwhite)",
-                borderBottom: "1px solid var(--color-line-light)",
-              }}
-            >
-              <span className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
-                {day}
-              </span>
-            </div>
-            {items.map((n, i) => (
-              <button
-                key={n.id}
-                onClick={() => markRead(n.id)}
-                className="w-full flex items-start gap-4 px-6 py-4 text-left transition-colors"
+    <Reveal className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col">
+        <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
+          {Object.entries(byDay).map(([day, items]) => (
+            <div key={day}>
+              <div
+                className="px-6 py-3"
                 style={{
-                  borderTop:
-                    i > 0 ? "1px solid var(--color-line-light)" : undefined,
-                  background: n.unread ? "rgba(239,120,104,0.04)" : "",
-                }}
-                onMouseEnter={e => {
-                  if (!n.unread)
-                    e.currentTarget.style.background = "var(--color-offwhite)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = n.unread
-                    ? "rgba(239,120,104,0.04)"
-                    : "";
+                  background: "var(--color-offwhite)",
+                  borderBottom: "1px solid var(--color-line-light)",
                 }}
               >
-                <div className="mt-1.5 shrink-0">
-                  {n.unread ? (
-                    <span
-                      className="w-2 h-2 rounded-full block"
-                      style={{ background: "var(--color-coral)" }}
-                      aria-label="Unread"
-                    />
-                  ) : (
-                    <span
-                      className="w-2 h-2 rounded-full block"
-                      style={{ background: "var(--color-line-light)" }}
-                      aria-hidden="true"
-                    />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-[14px] text-(--color-ink)">{n.text}</p>
-                  <span className="font-mono text-[11px] text-(--color-sage-dim) mt-1 block">
-                    {n.time}
-                  </span>
-                </div>
-                <StatusChip
-                  variant={
-                    n.type === "alert"
-                      ? "alert"
-                      : n.type === "success"
-                        ? "success"
-                        : "neutral"
-                  }
+                <span className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
+                  {day}
+                </span>
+              </div>
+              {items.map((n, i) => (
+                <button
+                  type="button"
+                  key={n.id}
+                  onClick={() => markRead(n.id)}
+                  className="w-full flex items-start gap-4 px-6 py-4 text-left transition-colors"
+                  style={{
+                    borderTop:
+                      i > 0 ? "1px solid var(--color-line-light)" : undefined,
+                    background: n.unread ? "rgba(239,120,104,0.04)" : "",
+                  }}
+                  onMouseEnter={e => {
+                    if (!n.unread)
+                      e.currentTarget.style.background = "var(--color-offwhite)";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = n.unread
+                      ? "rgba(239,120,104,0.04)"
+                      : "";
+                  }}
                 >
-                  {n.type}
-                </StatusChip>
-              </button>
-            ))}
-          </div>
-        ))}
+                  <div className="mt-1.5 shrink-0">
+                    {n.unread ? (
+                      <span
+                        className="w-2 h-2 rounded-full block"
+                        style={{ background: "var(--color-coral)" }}
+                        aria-label="Unread"
+                      />
+                    ) : (
+                      <span
+                        className="w-2 h-2 rounded-full block"
+                        style={{ background: "var(--color-line-light)" }}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[14px] text-(--color-ink)">{n.text}</p>
+                    <span className="font-mono text-[11px] text-(--color-sage-dim) mt-1 block">
+                      {n.time}
+                    </span>
+                  </div>
+                  <StatusChip
+                    variant={
+                      n.type === "alert"
+                        ? "alert"
+                        : n.type === "success"
+                          ? "success"
+                          : "neutral"
+                    }
+                  >
+                    {n.type}
+                  </StatusChip>
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <NotificationPagination
+          currentPage={currentPage}
+          totalItems={notifs.length}
+          onPageChange={setPage}
+        />
       </div>
     </Reveal>
   );
 }
 
 function EmailTab() {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(emailLog.length / itemsPerPage));
+  const currentPage = Math.min(page, totalPages);
+  const firstItemIndex = (currentPage - 1) * itemsPerPage;
+  const visibleEmails = emailLog.slice(firstItemIndex, firstItemIndex + itemsPerPage);
+
   return (
-    <Reveal>
-      <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
+    <Reveal className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col">
+        <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--color-line-light)" }}>
@@ -223,7 +285,7 @@ function EmailTab() {
             </tr>
           </thead>
           <tbody>
-            {emailLog.map((e, i) => (
+            {visibleEmails.map((e, i) => (
               <tr
                 key={i}
                 style={{ borderTop: "1px solid var(--color-line-light)" }}
@@ -253,6 +315,12 @@ function EmailTab() {
             ))}
           </tbody>
         </table>
+        </div>
+        <NotificationPagination
+          currentPage={currentPage}
+          totalItems={emailLog.length}
+          onPageChange={setPage}
+        />
       </div>
     </Reveal>
   );
@@ -260,6 +328,7 @@ function EmailTab() {
 
 function RulesTab() {
   const [rules, setRules] = useState<Rule[]>(initialRules);
+  const [page, setPage] = useState(1);
   const [isAddingRule, setIsAddingRule] = useState(false);
   const [condition, setCondition] = useState("");
   const [action, setAction] = useState("");
@@ -303,8 +372,13 @@ function RulesTab() {
     closeAddRule();
   };
 
+  const totalPages = Math.max(1, Math.ceil(rules.length / itemsPerPage));
+  const currentPage = Math.min(page, totalPages);
+  const firstItemIndex = (currentPage - 1) * itemsPerPage;
+  const visibleRules = rules.slice(firstItemIndex, firstItemIndex + itemsPerPage);
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-4">
       <Reveal>
         <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
           <div
@@ -316,7 +390,7 @@ function RulesTab() {
               or disable.
             </p>
           </div>
-          {rules.map((rule, i) => (
+          {visibleRules.map((rule, i) => (
             <div
               key={rule.id}
               className="flex items-center gap-5 px-6 py-4"
@@ -380,6 +454,11 @@ function RulesTab() {
           </div>
         </div>
       </Reveal>
+      <NotificationPagination
+        currentPage={currentPage}
+        totalItems={rules.length}
+        onPageChange={setPage}
+      />
       {isAddingRule && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <button
@@ -498,7 +577,7 @@ export default function Notifications({
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-h-full flex-col gap-6">
       <div
         className="flex gap-1 overflow-x-auto pb-1"
         style={{ borderBottom: "1px solid var(--color-line-light)" }}

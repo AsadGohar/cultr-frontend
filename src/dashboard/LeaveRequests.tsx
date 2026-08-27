@@ -126,6 +126,14 @@ function initials(name: string) {
   return name.split(' ').map(part => part[0]).join('').slice(0, 2)
 }
 
+function reviewerBubbleColors(status: ReviewerStatus) {
+  return status === 'in_review' ? 'bg-[#9CA3AF] text-white' : 'bg-(--color-navy) text-(--color-sage)'
+}
+
+function reviewerBubbleBorder(status: ReviewerStatus) {
+  return status === 'approved' ? 'border-(--color-sage)' : 'border-(--color-offwhite-raised)'
+}
+
 function reviewersForStatus(reviewers: Reviewer[], requestStatus: string) {
   if (requestStatus === 'approved') return reviewers.map(reviewer => ({ ...reviewer, status: 'approved' as const }))
   if (requestStatus !== 'declined') return reviewers
@@ -152,7 +160,7 @@ function ReviewProgress({ reviewers, requestStatus, compact = false }: { reviewe
             <UserProfileBubble
               key={reviewer.name}
               profile={{ name: reviewer.name, role: reviewer.role }}
-              className="h-6 w-6 border-2 border-(--color-offwhite-raised) bg-(--color-navy) font-mono text-[7px] text-(--color-sage)"
+              className={`h-6 w-6 border-2 font-mono text-[7px] ${reviewerBubbleColors(reviewer.status)} ${reviewerBubbleBorder(reviewer.status)}`}
               style={{ zIndex: visibleReviewers.length - index }}
               status={`Review status: ${reviewerStatusMeta[reviewer.status].label}`}
             >
@@ -185,7 +193,7 @@ function ReviewProgress({ reviewers, requestStatus, compact = false }: { reviewe
             <li key={reviewer.name} className="relative flex items-center gap-3 px-4 py-3.5 not-first:border-t not-first:border-(--color-line-light)">
               <UserProfileBubble
                 profile={{ name: reviewer.name, role: reviewer.role }}
-                className="h-8 w-8 bg-(--color-navy) font-mono text-[9px] text-(--color-sage)"
+                className={`h-8 w-8 border-2 font-mono text-[9px] ${reviewerBubbleColors(reviewer.status)} ${reviewerBubbleBorder(reviewer.status)}`}
                 status={`Review status: ${meta.label}`}
               >
                 {initials(reviewer.name)}
@@ -271,6 +279,8 @@ const tabs: { id: TabType; label: string }[] = [
   { id: 'shift', label: 'Shift Swaps' },
 ]
 
+const requestsPerPage = 3
+
 export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab => tab.id), onTabChange }: { activeTab?: RequestTab; availableTabs?: RequestTab[]; onTabChange?: (tab: RequestTab) => void }) {
   const { toast } = useToast()
   const [internalTab, setInternalTab] = useState<RequestTab>('all')
@@ -280,21 +290,40 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
   )
   const [newOpen, setNewOpen] = useState(false)
   const [newType, setNewType] = useState('leave')
-  const [reviewers, setReviewers] = useState<string[]>([])
   const [requestOpen, setRequestOpen] = useState<number | null>(null)
   const [swapOpen, setSwapOpen] = useState<number | null>(null)
+  const [pageByTab, setPageByTab] = useState<Record<RequestTab, number>>({
+    all: 1,
+    leave: 1,
+    wfh: 1,
+    promotion: 1,
+    loan: 1,
+    shift: 1,
+  })
 
   const filtered = tab === 'all' ? allRequests : allRequests.filter(r => r.type === tab)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / requestsPerPage))
+  const currentPage = Math.min(pageByTab[tab], totalPages)
+  const firstRequestIndex = (currentPage - 1) * requestsPerPage
+  const paginatedRequests = filtered.slice(firstRequestIndex, firstRequestIndex + requestsPerPage)
+  const firstVisibleRequest = filtered.length === 0 ? 0 : firstRequestIndex + 1
+  const lastVisibleRequest = Math.min(firstRequestIndex + requestsPerPage, filtered.length)
 
   const approve = (id: number) => setStatuses(s => ({ ...s, [id]: 'approved' }))
   const decline = (id: number) => setStatuses(s => ({ ...s, [id]: 'declined' }))
   const submitRequest = () => {
     setNewOpen(false)
-    toast({ variant: 'success', title: 'Request submitted', description: 'The selected reviewers have been notified.' })
+    toast({ variant: 'success', title: 'Request submitted', description: 'Your request has been submitted for review.' })
   }
   const selectTab = (next: RequestTab) => {
     setInternalTab(next)
     onTabChange?.(next)
+  }
+  const changePage = (nextPage: number) => {
+    setPageByTab(current => ({
+      ...current,
+      [tab]: Math.min(Math.max(nextPage, 1), totalPages),
+    }))
   }
   const openRequest = (request: RequestItem) => {
     if (request.swap) setSwapOpen(request.id)
@@ -304,7 +333,7 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
   const selectedRequest = requestOpen === null ? null : allRequests.find(request => request.id === requestOpen)
 
   return (
-    <div className="relative flex flex-col gap-4.5">
+    <div className="relative flex min-h-full flex-col gap-4.5">
       {/* Tab strip */}
       <div className="flex gap-1 overflow-x-auto pb-1" style={{ borderBottom: '1px solid var(--color-line-light)' }}>
         {tabs.filter(({ id }) => availableTabs.includes(id)).map(({ id, label }) => (
@@ -318,8 +347,8 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
       </div>
 
       {/* Request cards */}
-      <Reveal>
-        <div>
+      <Reveal className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col">
           <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h2 className="font-display text-[17px] font-700 text-(--color-ink)">
@@ -342,7 +371,7 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
             </button>
           </div>
           <div className="grid gap-4 lg:grid-cols-3">
-            {filtered.map(request => (
+            {paginatedRequests.map(request => (
               <AllRequestCard
                 key={request.id}
                 request={request}
@@ -350,6 +379,29 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
                 onOpen={() => openRequest(request)}
               />
             ))}
+          </div>
+          <div className="mt-auto flex items-center justify-between pt-3.5">
+            <span className="font-mono text-[11px] text-(--color-sage-dim)">
+              {firstVisibleRequest}&ndash;{lastVisibleRequest} of {filtered.length}
+            </span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => changePage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-[4px] border border-(--color-line-light) px-3 py-1.5 font-mono text-[11px] text-(--color-sage-dim) transition-colors hover:border-(--color-coral) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-(--color-line-light)"
+              >
+                &larr; Prev
+              </button>
+              <button
+                type="button"
+                onClick={() => changePage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="rounded-[4px] border border-(--color-line-light) px-3 py-1.5 font-mono text-[11px] text-(--color-sage-dim) transition-colors hover:border-(--color-coral) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-(--color-line-light)"
+              >
+                Next &rarr;
+              </button>
+            </div>
           </div>
         </div>
       </Reveal>
@@ -367,21 +419,6 @@ export default function LeaveRequests({ activeTab, availableTabs = tabs.map(tab 
             }))}
           />
           <Input type="date" label="Date(s)" />
-          <Dropdown
-            label="Reviewers"
-            multiple
-            searchable
-            value={reviewers}
-            onChange={value => setReviewers(value as string[])}
-            placeholder="Add reviewers"
-            hint="Choose one or more people to review this request."
-            options={[
-              { value: 'alexandra', label: 'Alexandra Rossi', description: 'People administrator' },
-              { value: 'marcus', label: 'Marcus Chen', description: 'Design manager' },
-              { value: 'jordan', label: 'Jordan Okoro', description: 'Operations lead' },
-              { value: 'leena', label: 'Leena Singh', description: 'Finance manager' },
-            ]}
-          />
           <Textarea label="Notes" rows={3} placeholder="Add context..." />
           <Button onClick={submitRequest} className="w-full">Submit request</Button>
         </div>
