@@ -1,24 +1,17 @@
-# Fonts Directory
+# Fonts directory
 
-This directory contains custom fonts for the Blockchain Explorer application.
+Drop static font files here and keep the filenames expected by `src/index.css`:
 
-## Required Font Files
+- `Inter-Regular.woff2`
+- `Inter-Regular.woff`
+- `Inter-Regular.ttf`
 
-The application expects the following font files:
+The boilerplate points `@font-face` to these files in this order:
+1. `/fonts/Inter-Regular.woff2`
+2. `/fonts/Inter-Regular.woff`
+3. `/fonts/Inter-Regular.ttf`
 
-1. **BlockchainFont-Regular.woff2** and **BlockchainFont-Regular.woff**
-   - Regular weight font for the main UI
+If you prefer to use another font family, update both:
 
-2. **BlockchainFont-Bold.woff2** and **BlockchainFont-Bold.woff**
-   - Bold weight font for headings
-
-3. **TechMono-Regular.woff2** and **TechMono-Regular.woff**
-   - Monospace font for code and hash displays
-
-## Note
-
-If you don't have custom fonts, the application will fall back to system fonts:
-- BlockchainFont → system sans-serif fonts
-- TechMono → system monospace fonts (Courier New, etc.)
-
-The fonts are referenced in `public/index.html` and will be loaded automatically when available.
+- `@font-face` in [`src/index.css`](/Users/user/Documents/github/hailo/project-boilerplate/src/index.css)
+- The alias stack in `:root`.
