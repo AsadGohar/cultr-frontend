@@ -271,13 +271,14 @@ function EmailTab() {
     <Reveal className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col">
         <div className="bg-(--color-offwhite-raised) border border-(--color-line-light) rounded-[12px] overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[520px]">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--color-line-light)" }}>
               {["Recipient", "Subject", "Sent", "Delivery"].map(h => (
                 <th
                   key={h}
-                  className="px-6 py-3.5 text-left font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)"
+                  className="px-6 py-3.5 text-left font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim) whitespace-nowrap"
                 >
                   {h}
                 </th>
@@ -295,13 +296,13 @@ function EmailTab() {
                 }
                 onMouseLeave={ev => (ev.currentTarget.style.background = "")}
               >
-                <td className="px-6 py-4 font-mono text-[12px] text-(--color-ink)">
+                <td className="px-6 py-4 font-mono text-[12px] text-(--color-ink) whitespace-nowrap">
                   {e.recipient}
                 </td>
                 <td className="px-6 py-4 text-[14px] text-(--color-ink)">
                   {e.subject}
                 </td>
-                <td className="px-6 py-4 font-mono text-[12px] text-(--color-sage-dim)">
+                <td className="px-6 py-4 font-mono text-[12px] text-(--color-sage-dim) whitespace-nowrap">
                   {e.sent}
                 </td>
                 <td className="px-6 py-4">
@@ -315,6 +316,7 @@ function EmailTab() {
             ))}
           </tbody>
         </table>
+        </div>
         </div>
         <NotificationPagination
           currentPage={currentPage}

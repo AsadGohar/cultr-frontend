@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { MenuPortal, useMenuPlacement } from './ui/use-menu-placement'
 
 // ── Button ────────────────────────────────────────────────────────────────────
 
@@ -305,6 +306,7 @@ export function Dropdown({
   hint,
   error,
   disabled = false,
+  menuSide = 'bottom',
   className = '',
 }: {
   options: DropdownOption[]
@@ -318,23 +320,42 @@ export function Dropdown({
   hint?: string
   error?: string
   disabled?: boolean
+  menuSide?: 'top' | 'bottom'
   className?: string
 }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const id = useId()
   const selected = Array.isArray(value) ? value : value ? [value] : []
   const chosen = options.filter(option => selected.includes(option.value))
   const filtered = options.filter(option => option.label.toLowerCase().includes(query.trim().toLowerCase()))
+  const { style: menuStyle } = useMenuPlacement({
+    isOpen: open,
+    triggerRef,
+    menuRef,
+    minWidth: 0,
+    side: menuSide,
+    sideOffset: 6,
+  })
 
   useEffect(() => {
     const close = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
+      const target = event.target as Node
+      if (!rootRef.current?.contains(target) && !menuRef.current?.contains(target)) setOpen(false)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
     }
     document.addEventListener('pointerdown', close)
-    return () => document.removeEventListener('pointerdown', close)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', close)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
   }, [])
 
   useEffect(() => {
@@ -357,11 +378,13 @@ export function Dropdown({
     <div ref={rootRef} className={`relative flex flex-col gap-1.5 ${className}`} onKeyDown={e => { if (e.key === 'Escape') setOpen(false) }}>
       {label && <label id={`${id}-label`} className="font-mono text-[11px] uppercase tracking-widest text-(--color-sage-dim)">{label}</label>}
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         aria-labelledby={label ? `${id}-label` : undefined}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-controls={`${id}-listbox`}
         aria-invalid={Boolean(error)}
         onClick={() => setOpen(current => !current)}
         className={`min-h-12 w-full flex items-center gap-2 px-4 py-2.5 text-left bg-transparent border rounded-[6px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${open ? 'border-(--color-coral)' : error ? 'border-(--color-coral)' : 'border-(--color-line-light)'}`}
@@ -376,16 +399,21 @@ export function Dropdown({
       {hint && !error && <p className="text-[13px] text-(--color-sage-dim)">{hint}</p>}
 
       {open && (
-        <div className="absolute z-40 top-full left-0 right-0 mt-1.5 overflow-hidden rounded-[8px] border border-(--color-line-light) bg-(--color-offwhite-raised) shadow-[0_16px_40px_rgba(11,20,38,0.14)] animate-dropdown-in">
+        <MenuPortal>
+        <div
+          ref={menuRef}
+          style={menuStyle ?? { position: 'fixed', visibility: 'hidden' }}
+          className="z-[100] overflow-hidden rounded-[8px] border border-(--color-line-light) bg-(--color-offwhite-raised) shadow-[0_16px_40px_rgba(11,20,38,0.14)] animate-dropdown-in"
+        >
           {searchable && (
             <div className="p-2 border-b border-(--color-line-light)">
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-sage-dim)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-                <input ref={searchRef} value={query} onChange={e => setQuery(e.target.value)} placeholder={searchPlaceholder} className="w-full pl-9 pr-3 py-2.5 rounded-[5px] bg-(--color-offwhite) border border-transparent text-[13px] text-(--color-ink) placeholder:text-(--color-ink)/30 focus:outline-none focus:border-(--color-coral)" />
+                <input ref={searchRef} value={query} onChange={e => setQuery(e.target.value)} placeholder={searchPlaceholder} className="w-full pl-9 pr-3 py-2.5 rounded-[5px] bg-(--color-offwhite) border border-transparent text-base text-(--color-ink) placeholder:text-(--color-ink)/30 focus:outline-none focus:border-(--color-coral)" />
               </div>
             </div>
           )}
-          <div role="listbox" aria-multiselectable={multiple || undefined} className="max-h-64 overflow-y-auto p-1.5">
+          <div id={`${id}-listbox`} role="listbox" aria-multiselectable={multiple || undefined} className="max-h-64 overflow-y-auto p-1.5">
             {filtered.length === 0 && <div className="px-3 py-6 text-center text-[13px] text-(--color-sage-dim)">No options found</div>}
             {filtered.map(option => {
               const active = selected.includes(option.value)
@@ -410,6 +438,7 @@ export function Dropdown({
             })}
           </div>
         </div>
+        </MenuPortal>
       )}
     </div>
   )

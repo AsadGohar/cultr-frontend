@@ -44,24 +44,32 @@ export function useMenuPlacement({
 
     const trigger = triggerRef.current.getBoundingClientRect();
     const menuHeight = menuRef.current?.getBoundingClientRect().height ?? 272;
+    const visualViewport = window.visualViewport;
+    const viewportLeft = visualViewport?.offsetLeft ?? 0;
+    const viewportTop = visualViewport?.offsetTop ?? 0;
+    const viewportRight = viewportLeft + (visualViewport?.width ?? window.innerWidth);
+    const viewportBottom = viewportTop + (visualViewport?.height ?? window.innerHeight);
+    const dialog = triggerRef.current.closest('[role="dialog"]');
+    const dialogRect = dialog?.getBoundingClientRect();
+    const boundaryTop = Math.max(viewportTop + 8, dialogRect?.top ?? viewportTop + 8);
+    const boundaryBottom = Math.min(viewportBottom - 8, dialogRect?.bottom ?? viewportBottom - 8);
 
     const width = Math.max(minWidth, trigger.width);
-    const constrainedWidth = Math.min(width, window.innerWidth - 16);
+    const constrainedWidth = Math.min(width, viewportRight - viewportLeft - 16);
 
     const leftStart = alignment === "end" ? trigger.right - constrainedWidth : trigger.left;
     const left = Math.min(
-      Math.max(8, leftStart + alignOffset),
-      Math.max(8, window.innerWidth - constrainedWidth - 8),
+      Math.max(viewportLeft + 8, leftStart + alignOffset),
+      Math.max(viewportLeft + 8, viewportRight - constrainedWidth - 8),
     );
 
-    const fitsBelow = trigger.bottom + sideOffset + menuHeight <= window.innerHeight - 8;
-    const fitsAbove = trigger.top - sideOffset - menuHeight >= 8;
-    const preferTop = side === "top" || (!fitsBelow && fitsAbove);
+    const fitsBelow = trigger.bottom + sideOffset + menuHeight <= boundaryBottom;
+    const preferTop = side === "top" || !fitsBelow;
 
     const top =
       preferTop
-        ? Math.max(8, trigger.top - sideOffset - menuHeight)
-        : trigger.bottom + sideOffset;
+        ? Math.max(boundaryTop, trigger.top - sideOffset - menuHeight)
+        : Math.min(trigger.bottom + sideOffset, Math.max(boundaryTop, boundaryBottom - menuHeight));
 
     setPlacement({
       top,
@@ -83,10 +91,14 @@ export function useMenuPlacement({
     run();
     window.addEventListener("scroll", run, true);
     window.addEventListener("resize", run);
+    window.visualViewport?.addEventListener("scroll", run);
+    window.visualViewport?.addEventListener("resize", run);
 
     return () => {
       window.removeEventListener("scroll", run, true);
       window.removeEventListener("resize", run);
+      window.visualViewport?.removeEventListener("scroll", run);
+      window.visualViewport?.removeEventListener("resize", run);
     };
   }, [isOpen, update]);
 
