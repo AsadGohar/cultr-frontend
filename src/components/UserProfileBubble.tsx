@@ -122,7 +122,7 @@ function ProfileCard({
   profile: UserProfile
   status?: ReactNode
   footer?: ReactNode
-  cardRef: React.RefObject<HTMLDivElement | null>
+  cardRef: React.RefObject<HTMLDivElement>
   onPointerEnter: () => void
   onPointerLeave: () => void
   position: { left: number; top: number }
