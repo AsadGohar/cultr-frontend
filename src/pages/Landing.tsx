@@ -83,7 +83,7 @@ function ConsolePanel() {
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-coral)/60" />
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-sage)/40" />
         <span className="w-2.5 h-2.5 rounded-full bg-(--color-sage-dim)/30" />
-        <span className="ml-3 font-mono text-[10px] text-(--color-sage-dim) uppercase tracking-widest">Cultre HR · Live</span>
+        <span className="ml-3 font-mono text-[10px] text-(--color-sage-dim) uppercase tracking-widest">Cultre · Live</span>
       </div>
 
       {/* Org chart */}
@@ -419,7 +419,7 @@ function ModuleIdentity() {
           </div>
           <svg viewBox="0 34 400 52" className="mt-5 w-full" aria-label="Identity access flow diagram">
             {[
-              { x: 5,   label: 'USER' },
+              { x: 5, label: 'USER' },
               { x: 115, label: 'MFA CHECK' },
               { x: 225, label: 'ROLE SCOPE' },
               { x: 335, label: 'ACCESS\nGRANTED' },
@@ -683,7 +683,7 @@ function ModuleLeave() {
 function ModuleNotifs() {
   return (
     <Reveal delay={60} className="min-w-0 h-full lg:col-span-5">
-      <div className="h-full p-8 md:p-10 rounded-[12px]"
+      <div className="h-full p-8 md:p-10 rounded-[12px] overflow-x-auto"
         style={{ border: '1px solid var(--color-line-dark)', background: 'var(--color-navy-raised)' }}>
         <div className="flex h-full flex-col justify-between gap-10">
           <div>
@@ -695,13 +695,13 @@ function ModuleNotifs() {
               Automated routing across in-app and email channels, without anyone chasing it.
             </p>
           </div>
-          <div className="flex gap-6 items-center justify-center">
+          <div className="flex flex-wrap sm:flex-nowrap gap-6 items-center justify-center">
             {[
               { label: 'IN-APP', active: true },
               { label: 'EMAIL', active: true },
               { label: 'AUTOMATED', active: false },
             ].map(({ label, active }) => (
-              <div key={label} className="flex flex-col items-center gap-3">
+              <div key={label} className="flex flex-col items-center gap-3 shrink-0">
                 <div
                   className="w-3 h-3 rounded-full"
                   style={{
@@ -865,17 +865,18 @@ function Closing({ onSignUp }: { onSignUp: () => void }) {
           </p>
 
           {/* Email capture */}
-          <div className="mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-0 max-w-md mx-auto">
+          <div className="mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-0 max-w-md mx-auto w-full px-4 sm:px-0">
             <input
               type="email"
               placeholder="your@company.com"
-              className="flex-1 px-5 py-4 text-[15px] text-(--color-offwhite) bg-transparent placeholder:text-(--color-sage-dim) focus:outline-none"
-              style={{ borderBottom: '1px solid var(--color-coral)' }}
+              className="w-full sm:flex-1 px-5 py-4 text-[15px] text-(--color-offwhite) bg-transparent placeholder:text-(--color-sage-dim) focus:outline-none rounded-[6px] sm:rounded-none"
+              style={{ border: '1px solid var(--color-line-dark)', borderBottom: '1px solid var(--color-coral)' }}
               aria-label="Work email"
             />
             <button
               onClick={onSignUp}
-              className="sm:ml-4 px-6 py-4 font-display font-600 text-[15px] text-(--color-coral) hover:text-(--color-coral-deep) transition-colors flex items-center gap-2"
+              className="w-full sm:w-auto sm:ml-4 px-6 py-4 font-display font-600 text-[15px] text-(--color-coral) hover:text-(--color-coral-deep) transition-colors flex items-center justify-center sm:justify-start gap-2 rounded-[6px] sm:rounded-none"
+              style={{ border: '1px solid rgba(239,120,104,0.3)' }}
               aria-label="Start free"
             >
               Start Free
@@ -932,7 +933,7 @@ function Footer() {
         <div className="mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
           style={{ borderTop: '1px solid var(--color-line-dark)' }}>
           <span className="font-mono text-[11px] text-(--color-sage-dim)">
-            © 2026 Cultre HR, Inc.
+            © 2026 Cultre, Inc.
           </span>
           <span className="font-mono text-[11px] flex items-center gap-2" style={{ color: 'rgba(158,173,156,0.6)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-(--color-sage) animate-pulse-status" />
