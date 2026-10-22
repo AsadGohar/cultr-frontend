@@ -10,6 +10,7 @@ node_modules
 dist
 dist-ssr
 
+temp_auto_push.bat
 # Environment
 .env
 .env.local
@@ -17,10 +18,11 @@ dist-ssr
 
 # Tooling
 .DS_Store
-.vscode
 .idea
 
 # Build / cache
 .turbo
 .vercel
 coverage
+.gitignore
+branch_structure.json
