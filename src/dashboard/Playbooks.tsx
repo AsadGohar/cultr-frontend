@@ -42,6 +42,13 @@ export interface LifecycleProcess {
 
 type TaskDraft = Omit<LifecycleTemplateTask, "lifecycleTemplateId">;
 
+type ViewportBounds = {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+};
+
 const organizationId = "demo-organization";
 
 const people = [
@@ -210,6 +217,17 @@ const statusVariant = (status: TemplateStatus | ProcessStatus | TaskStatus) => {
 
 const statusLabel = (status: string) => status.replaceAll("_", " ");
 
+const getViewportBounds = (): ViewportBounds => {
+  const viewport = window.visualViewport;
+
+  return {
+    height: viewport?.height ?? window.innerHeight,
+    left: viewport?.offsetLeft ?? 0,
+    top: viewport?.offsetTop ?? 0,
+    width: viewport?.width ?? window.innerWidth,
+  };
+};
+
 function Modal({
   open,
   title,
@@ -229,6 +247,8 @@ function Modal({
   scrollBody?: boolean;
   fillViewport?: boolean;
 }) {
+  const [viewportBounds, setViewportBounds] = useState(getViewportBounds);
+
   useEffect(() => {
     if (!open) return;
 
@@ -253,10 +273,36 @@ function Modal({
     };
   }, [onClose, open]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const viewport = window.visualViewport;
+    const updateViewportBounds = () => setViewportBounds(getViewportBounds());
+
+    updateViewportBounds();
+    viewport?.addEventListener("resize", updateViewportBounds);
+    viewport?.addEventListener("scroll", updateViewportBounds);
+    window.addEventListener("resize", updateViewportBounds);
+
+    return () => {
+      viewport?.removeEventListener("resize", updateViewportBounds);
+      viewport?.removeEventListener("scroll", updateViewportBounds);
+      window.removeEventListener("resize", updateViewportBounds);
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden overscroll-none px-4 py-6">
+    <div
+      className="fixed z-50 flex items-center justify-center overflow-hidden p-4"
+      style={{
+        height: viewportBounds.height,
+        left: viewportBounds.left,
+        top: viewportBounds.top,
+        width: viewportBounds.width,
+      }}
+    >
       <button
         type="button"
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -267,10 +313,11 @@ function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="playbook-modal-title"
-        className={`relative z-10 flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) shadow-2xl ${wide ? "max-w-[900px]" : "max-w-[600px]"} ${fillViewport ? "h-[92dvh]" : ""}`}
+        className={`relative z-10 flex min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) shadow-2xl [&_input]:text-base ${fillViewport ? "h-full" : "max-h-full"}`}
+        style={{ maxWidth: wide ? 900 : 600 }}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-(--color-line-light) px-6 py-5">
-          <div>
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-(--color-line-light) px-4 py-4 md:px-6 md:py-5">
+          <div className="min-w-0">
             <h2
               id="playbook-modal-title"
               className="font-display text-xl font-700 text-(--color-ink)"
@@ -303,7 +350,7 @@ function Modal({
           </button>
         </header>
         <div
-          className={`min-h-0 flex-1 ${scrollBody ? "touch-pan-y overflow-y-auto overscroll-contain" : "overflow-hidden"}`}
+          className={`min-h-0 min-w-0 flex-1 ${scrollBody ? "overflow-x-hidden overflow-y-auto" : "overflow-hidden"}`}
         >
           {children}
         </div>
@@ -410,22 +457,20 @@ function PlaybookEditor({
       fillViewport
     >
       <form
-        className="flex h-full min-h-0 flex-col"
+        className="flex h-full min-h-0 min-w-0 w-full flex-col"
         onSubmit={event => {
           event.preventDefault();
           save();
         }}
       >
-        <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain p-6">
-          <div className="grid gap-4 md:grid-cols-3">
+        <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overflow-x-hidden overscroll-contain p-4 md:p-6">
+          <div className="grid min-w-0 gap-4 md:grid-cols-3 [&>*]:min-w-0">
             <Input
-              autoFocus
               required
               label="Playbook name"
               value={name}
               onChange={event => setName(event.target.value)}
               placeholder="e.g. Executive onboarding"
-              className="md:col-span-1"
             />
             <Dropdown
               label="Lifecycle type"
@@ -450,7 +495,7 @@ function PlaybookEditor({
           </div>
 
           <section className="mt-6">
-            <div className="mb-3 flex items-end justify-between gap-4">
+            <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-end md:justify-between md:gap-4">
               <div>
                 <h3 className="font-display text-[15px] font-600 text-(--color-ink)">
                   Template tasks
@@ -495,7 +540,7 @@ function PlaybookEditor({
                         </button>
                       )}
                     </div>
-                    <div className="grid gap-4 md:grid-cols-[2fr_1.25fr_0.8fr_1.4fr]">
+                    <div className="grid min-w-0 gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.25fr)_minmax(0,0.8fr)_minmax(0,1.4fr)] [&>*]:min-w-0">
                       <Input
                         required
                         label="Task name"
@@ -549,15 +594,15 @@ function PlaybookEditor({
           </section>
         </div>
 
-        <div className="flex shrink-0 justify-end gap-3 border-t border-(--color-line-light) bg-(--color-offwhite-raised) px-6 py-4 shadow-[0_-8px_24px_rgba(11,20,38,0.04)]">
+        <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-(--color-line-light) bg-(--color-offwhite-raised) px-4 py-3 shadow-[0_-8px_24px_rgba(11,20,38,0.04)] md:flex-row md:justify-end md:gap-3 md:px-6 md:py-4">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-[6px] px-5 py-3 font-display text-[14px] font-600 text-(--color-sage-dim) hover:text-(--color-ink)"
+            className="w-full rounded-[6px] px-5 py-3 font-display text-[14px] font-600 text-(--color-sage-dim) hover:text-(--color-ink) md:w-auto"
           >
             Cancel
           </button>
-          <Button type="submit" disabled={!valid}>
+          <Button type="submit" disabled={!valid} className="w-full md:w-auto">
             {template ? "Save changes" : "Create Playbook"}
           </Button>
         </div>
@@ -592,15 +637,15 @@ function StartProcessModal({
     >
       {template && (
         <form
-          className="flex flex-col gap-5 p-6"
+          className="flex min-w-0 flex-col gap-5 p-4 md:p-6"
           onSubmit={event => {
             event.preventDefault();
             onStart(userId);
           }}
         >
           <div className="rounded-[8px] border border-(--color-line-light) bg-(--color-offwhite) p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
+            <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+              <div className="min-w-0">
                 <p className="font-display text-[15px] font-600 text-(--color-ink)">
                   {template.name}
                 </p>
@@ -620,20 +665,25 @@ function StartProcessModal({
             options={people}
             placeholder="Select an employee"
             searchable
+            menuSide="top"
           />
           <p className="text-[13px] leading-5 text-(--color-sage-dim)">
             Starting the process copies every template task into a trackable
             checklist for the selected employee.
           </p>
-          <div className="flex justify-end gap-3 border-t border-(--color-line-light) pt-5">
+          <div className="flex flex-col-reverse gap-2 border-t border-(--color-line-light) pt-5 md:flex-row md:justify-end md:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-[6px] px-5 py-3 font-display text-[14px] font-600 text-(--color-sage-dim) hover:text-(--color-ink)"
+              className="w-full rounded-[6px] px-5 py-3 font-display text-[14px] font-600 text-(--color-sage-dim) hover:text-(--color-ink) md:w-auto"
             >
               Cancel
             </button>
-            <Button type="submit" disabled={!userId}>
+            <Button
+              type="submit"
+              disabled={!userId}
+              className="w-full md:w-auto"
+            >
               Start Process
             </Button>
           </div>
@@ -666,11 +716,15 @@ function ProcessModal({
       title={process ? personLabel(process.userId) : "Lifecycle process"}
       description={template?.name}
       onClose={onClose}
+      scrollBody={false}
+      fillViewport
     >
       {process && template && (
-        <div className="flex flex-col gap-5 p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
+        <div className="flex h-full min-h-0 min-w-0 flex-col">
+          <div className="min-h-0 flex-1 touch-pan-y overflow-x-hidden overflow-y-auto overscroll-contain p-4 md:p-6">
+            <div className="flex flex-col gap-5">
+          <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+            <div className="min-w-0">
               <p className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
                 {statusLabel(template.type)} · Started {process.startedOn}
               </p>
@@ -768,8 +822,10 @@ function ProcessModal({
               );
             })}
           </div>
-          <div className="flex justify-end border-t border-(--color-line-light) pt-5">
-            <Button type="button" onClick={onClose}>
+            </div>
+          </div>
+          <div className="flex shrink-0 border-t border-(--color-line-light) bg-(--color-offwhite-raised) px-4 py-3 shadow-[0_-8px_24px_rgba(11,20,38,0.04)] md:justify-end md:px-6 md:py-4">
+            <Button type="button" onClick={onClose} className="w-full md:w-auto">
               Done
             </Button>
           </div>
@@ -913,9 +969,9 @@ export default function Playbooks() {
   };
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex min-w-0 flex-col gap-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
+        <div className="min-w-0">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-(--color-coral)">
             Lifecycle automation
           </p>
@@ -927,16 +983,16 @@ export default function Playbooks() {
             tracked process for each employee.
           </p>
         </div>
-        <Button type="button" onClick={openCreate}>
+        <Button type="button" onClick={openCreate} className="w-full sm:w-auto">
           <span aria-hidden="true">+</span> Create Playbook
         </Button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {metrics.map(metric => (
           <div
             key={metric.label}
-            className="rounded-[10px] border border-(--color-line-light) bg-(--color-offwhite-raised) p-5"
+            className="min-w-0 rounded-[10px] border border-(--color-line-light) bg-(--color-offwhite-raised) p-4 sm:p-5"
           >
             <p className="font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
               {metric.label}
@@ -975,7 +1031,7 @@ export default function Playbooks() {
             return (
               <article
                 key={template.id}
-                className="group flex flex-col rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) p-5 transition-all hover:-translate-y-0.5 hover:border-(--color-coral) hover:shadow-[0_10px_24px_rgba(11,20,38,0.07)]"
+                className="group flex min-w-0 flex-col rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised) p-5 transition-all hover:-translate-y-0.5 hover:border-(--color-coral) hover:shadow-[0_10px_24px_rgba(11,20,38,0.07)]"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div
@@ -1023,7 +1079,7 @@ export default function Playbooks() {
                   <h3 className="mt-1 font-display text-[16px] font-600 text-(--color-ink)">
                     {template.name}
                   </h3>
-                  <div className="mt-4 flex items-center gap-4 border-y border-(--color-line-light) py-3 font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 border-y border-(--color-line-light) py-3 font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
                     <span>{templateTasks.length} tasks</span>
                     <span aria-hidden="true">·</span>
                     <span>
@@ -1047,7 +1103,7 @@ export default function Playbooks() {
                     )}
                   </div>
                 </div>
-                <div className="mt-5 flex gap-2">
+                <div className="mt-5 flex flex-col gap-2 min-[400px]:flex-row">
                   <button
                     type="button"
                     onClick={() => {
@@ -1075,9 +1131,9 @@ export default function Playbooks() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised)">
-        <div className="flex items-center justify-between gap-4 px-5 py-4">
-          <div>
+      <section className="min-w-0 overflow-hidden rounded-[12px] border border-(--color-line-light) bg-(--color-offwhite-raised)">
+        <div className="flex flex-col items-start gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="min-w-0">
             <h2 className="font-display text-[16px] font-600 text-(--color-ink)">
               Lifecycle processes
             </h2>
@@ -1089,7 +1145,7 @@ export default function Playbooks() {
             {processes.length} total
           </span>
         </div>
-        <div className="overflow-x-auto border-t border-(--color-line-light)">
+        <div className="w-full overflow-x-auto overscroll-x-contain border-t border-(--color-line-light)">
           <table className="w-full min-w-[720px] border-collapse text-left">
             <thead>
               <tr className="bg-(--color-navy)/[0.025] font-mono text-[10px] uppercase tracking-widest text-(--color-sage-dim)">
