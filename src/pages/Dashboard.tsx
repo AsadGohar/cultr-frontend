@@ -162,12 +162,14 @@ function Sidebar({
   view,
   onView,
   isViewEnabled,
+  mobile = false,
 }: {
   collapsed: boolean
   onToggle: () => void
   view: View
   onView: (v: View) => void
   isViewEnabled: (view: View) => boolean
+  mobile?: boolean
 }) {
   const w = collapsed ? '72px' : '248px'
 
@@ -192,34 +194,48 @@ function Sidebar({
           <img src="/cultre-favicon.png" alt="" className="h-7 w-7 shrink-0 rounded-[6px] object-cover" />
         </div>
         {!collapsed && (
-          <span className="font-display font-700 text-[15px] text-(--color-offwhite) truncate tracking-tight">
+          <span className="truncate font-display text-[15px] font-700 tracking-tight text-(--color-offwhite)">
             Cultre
           </span>
+        )}
+        {mobile && (
+          <button
+            type="button"
+            onClick={onToggle}
+            className="ml-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-[6px] text-(--color-sage-dim) transition-colors hover:bg-white/5 hover:text-(--color-offwhite)"
+            aria-label="Close navigation"
+          >
+            <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <path d="M12 4L4 12M4 4l8 8" />
+            </svg>
+          </button>
         )}
       </div>
 
       {/* Compact collapse control */}
-      <button
-        onClick={onToggle}
-        className="absolute top-5 -right-3 z-20 w-6 h-6 flex items-center justify-center rounded-full border border-(--color-line-dark) bg-(--color-navy-raised) text-(--color-sage) shadow-[0_3px_10px_rgba(0,0,0,0.25)] transition-colors hover:text-(--color-coral) hover:border-(--color-coral) cursor-pointer"
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 250ms cubic-bezier(0.22,1,0.36,1)' }}
-          aria-hidden="true"
+      {!mobile && (
+        <button
+          onClick={onToggle}
+          className="absolute top-5 -right-3 z-20 w-6 h-6 flex items-center justify-center rounded-full border border-(--color-line-dark) bg-(--color-navy-raised) text-(--color-sage) shadow-[0_3px_10px_rgba(0,0,0,0.25)] transition-colors hover:text-(--color-coral) hover:border-(--color-coral) cursor-pointer"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 250ms cubic-bezier(0.22,1,0.36,1)' }}
+            aria-hidden="true"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+      )}
 
       {/* Nav */}
       <nav className="min-h-0 flex-1 overflow-y-auto py-4" aria-label="Main navigation">
@@ -425,6 +441,23 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
     if (!isViewEnabled(view)) setView('overview')
   }, [isViewEnabled, view])
 
+  useEffect(() => {
+    if (!mobileNavOpen) return
+
+    const previousOverflow = document.body.style.overflow
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileNavOpen(false)
+    }
+
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', closeOnEscape)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [mobileNavOpen])
+
   const handleView = (v: View) => {
     if (!isViewEnabled(v)) return
     setView(v)
@@ -446,17 +479,23 @@ export default function Dashboard({ onSignOut }: { onSignOut: () => void }) {
 
       {/* Mobile nav overlay */}
       {mobileNavOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          <div className="flex-1 bg-black/40" onClick={() => setMobileNavOpen(false)} />
-          <div style={{ width: '248px', background: 'var(--color-navy)' }} className="h-full">
+        <div className="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true" aria-label="Main navigation">
+          <div className="h-full animate-slide-left" style={{ width: '248px', background: 'var(--color-navy)' }}>
             <Sidebar
               collapsed={false}
               onToggle={() => setMobileNavOpen(false)}
               view={view}
               onView={handleView}
               isViewEnabled={isViewEnabled}
+              mobile
             />
           </div>
+          <button
+            type="button"
+            className="flex-1 animate-overlay-in bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label="Close navigation"
+          />
         </div>
       )}
 
